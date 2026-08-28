@@ -1,5 +1,6 @@
 package it.unibo;
-
+import com.google.gwt.regexp.shared.RegExp;
+import java.util.Date;
 /**
  * <p>
  * FieldVerifier validates that the name the user enters is valid.
@@ -19,24 +20,61 @@ package it.unibo;
  * system) cannot be compiled into client side JavaScript. Code that uses native
  * JavaScript (such as Widgets) cannot be run on the server.
  * </p>
+ *
+ * NOTA: java.util.regex.Pattern/Matcher e java.util.Calendar/GregorianCalendar
+ * NON sono emulate da GWT lato client (nessuna configurazione di modulo può
+ * abilitarle: sono classi del tutto assenti dalla JRE emulation). Per questo
+ * qui sotto usiamo com.google.gwt.regexp.shared.RegExp al posto di Pattern,
+ * e java.util.Date (che invece È emulata) al posto di GregorianCalendar.
  */
 public class FieldVerifier {
+	//matcher.match non è transcrivibile in JS per questo usiamo RegExp
+	//pattern che contiene 3 caratteri alfabetici (ancorato ^...$ per riprodurre
+	//la stessa semantica di "full match" che aveva Matcher.matches())
+	private static final RegExp USERNAME_PATTERN =
+			RegExp.compile("^(?:.*[a-z]){3}.*$", "i");
+	@SuppressWarnings("deprecation")
+	private static final Date ANNOMIN = new Date(0, 11, 31);
+	@SuppressWarnings("deprecation")
+	private static final Date ANNOMAX = new Date(126, 11, 31);
 
 	/**
 	 * Verifies that the specified name is valid for our service.
-	 * 
 	 * In this example, we only require that the name is at least four
 	 * characters. In your application, you can use more complex checks to ensure
 	 * that usernames, passwords, email addresses, URLs, and other fields have the
 	 * proper syntax.
-	 * 
+	 *
 	 * @param name the name to validate
 	 * @return true if valid, false if invalid
 	 */
 	public static boolean isValidName(String name) {
-		if (name == null) {
+		if (name == null || name.isEmpty()) {
 			return false;
 		}
-		return name.length() > 3;
+		return USERNAME_PATTERN.test(name) && name.length() >= 3;
 	}
+
+	public static boolean isValidUsername(String u){
+		if(u==null || u.isEmpty())
+			return false;
+		//username deve contenere almeno tre caratteri alfabetici
+		return USERNAME_PATTERN.test(u) && u.trim().length() >= 3 && u.trim().length() <= 25;
+	}
+
+	public static boolean isValidEmail(String mail) {
+		if (mail == null || mail.isEmpty()) return false;
+		return mail.contains("@") && mail.contains(".");
+	}
+
+	public static boolean isValidPassword(String password) {
+		if (password == null || password.isEmpty()) return false;
+		return password.trim().length() >= 8;
+	}
+
+	public static boolean isValidDataNascita(Date eta){
+		if(eta==null) return false;
+		return !eta.before(ANNOMIN) && !eta.after(ANNOMAX);
+	}
+
 }

@@ -1,4 +1,4 @@
-package it.unibo;
+package it.unibo.Ricette;
 
 public class Greeting {
 

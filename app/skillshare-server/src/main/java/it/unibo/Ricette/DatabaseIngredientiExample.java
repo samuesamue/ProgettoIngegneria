@@ -1,7 +1,9 @@
-package it.unibo;
+package it.unibo.Ricette;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ConcurrentMap;
+
+import it.unibo.DatabaseCore;
 import org.mapdb.Serializer;
 import org.mapdb.DB;
 
