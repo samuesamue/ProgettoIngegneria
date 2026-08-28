@@ -11,7 +11,21 @@
   <artifactId>skillshare-server</artifactId>
   <packaging>war</packaging>
 
+  <!-- GESTIONE DELLE DIPENDENZE: Allinea tutte le versioni di JUnit -->
+  <dependencyManagement>
+    <dependencies>
+      <dependency>
+        <groupId>org.junit</groupId>
+        <artifactId>junit-bom</artifactId>
+        <version>5.10.2</version>
+        <type>pom</type>
+        <scope>import</scope>
+      </dependency>
+    </dependencies>
+  </dependencyManagement>
+
   <dependencies>
+    <!-- GWT e Modulo Condiviso -->
     <dependency>
       <groupId>${project.groupId}</groupId>
       <artifactId>skillshare-shared</artifactId>
@@ -26,35 +40,38 @@
       <artifactId>jakarta.servlet-api</artifactId>
       <scope>provided</scope>
     </dependency>
+
+    <!-- Database -->
     <dependency>
-            <groupId>org.mapdb</groupId>
-            <artifactId>mapdb</artifactId>
-            <version>3.0.10</version>
+      <groupId>org.mapdb</groupId>
+      <artifactId>mapdb</artifactId>
+      <version>3.0.10</version>
+    </dependency>
+
+    <!-- Testing (JUnit 5 + Mockito) -->
+    <dependency>
+      <groupId>org.junit.jupiter</groupId>
+      <artifactId>junit-jupiter</artifactId>
+      <scope>test</scope>
     </dependency>
     <dependency>
-        <groupId>org.junit.jupiter</groupId>
-        <artifactId>junit-jupiter</artifactId>
-        <version>5.10.2</version>
-        <scope>test</scope>
+      <groupId>org.mockito</groupId>
+      <artifactId>mockito-core</artifactId>
+      <version>5.11.0</version>
+      <scope>test</scope>
     </dependency>
     <dependency>
-        <groupId>org.mockito</groupId>
-        <artifactId>mockito-core</artifactId>
-        <version>5.11.0</version>
-        <scope>test</scope>
-    </dependency>
-    <!-- Necessario per JUnit 5 + Mockito -->
-    <dependency>
-        <groupId>org.mockito</groupId>
-        <artifactId>mockito-junit-jupiter</artifactId>
-        <version>5.11.0</version>
-        <scope>test</scope>
+      <groupId>org.mockito</groupId>
+      <artifactId>mockito-junit-jupiter</artifactId>
+      <version>5.11.0</version>
+      <scope>test</scope>
     </dependency>
   </dependencies>
 
   <build>
     <pluginManagement>
       <plugins>
+        <!-- Plugin per avviare il server GWT -->
         <plugin>
           <groupId>org.eclipse.jetty.ee10</groupId>
           <artifactId>jetty-ee10-maven-plugin</artifactId>
@@ -63,13 +80,23 @@
             <contextXml>${basedir}/src/main/jettyconf/context.xml</contextXml>
           </configuration>
         </plugin>
+
+        <!-- Plugin ufficiale per eseguire i test unitari con JUnit 5 -->
+        <plugin>
+          <groupId>org.apache.maven.plugins</groupId>
+          <artifactId>maven-surefire-plugin</artifactId>
+          <version>3.2.5</version>
+          <configuration>
+            <!-- Forza Mockito a funzionare anche Java 26 -->
+            <argLine>-Dnet.bytebuddy.experimental=true</argLine>
+          </configuration>
+        </plugin>
       </plugins>
     </pluginManagement>
   </build>
 
   <profiles>
     <profile>
-      <!-- XXX: We want to exclude skillshare-client from 'env-dev' profile, Maven forces us to make a 'env-prod' profile -->
       <id>env-prod</id>
       <activation>
         <activeByDefault>true</activeByDefault>

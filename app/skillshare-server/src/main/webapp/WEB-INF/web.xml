@@ -6,7 +6,7 @@
 	<!-- Servlets -->
   <servlet>
     <servlet-name>greetServlet</servlet-name>
-    <servlet-class>it.unibo.GreetingServiceImpl</servlet-class>
+    <servlet-class>it.unibo.Ricette.GreetingServiceImpl</servlet-class>
   </servlet>
   <servlet-mapping>
     <servlet-name>greetServlet</servlet-name>
@@ -15,7 +15,7 @@
 
   <servlet>
     <servlet-name>ingredentiServlet</servlet-name>
-    <servlet-class>it.unibo.IngredientiServiceImpl</servlet-class>
+    <servlet-class>it.unibo.Ricette.IngredientiServiceImpl</servlet-class>
   </servlet>
   <servlet-mapping>
     <servlet-name>ingredentiServlet</servlet-name>
@@ -26,5 +26,17 @@
   <welcome-file-list>
     <welcome-file>index.html</welcome-file>
   </welcome-file-list>
+
+  <!-- Dichiariamo la Servlet -->
+  <servlet>
+    <servlet-name>registrazioneServlet</servlet-name>
+    <servlet-class>it.unibo.RegistrazioneImp</servlet-class>
+  </servlet>
+
+  <!-- Creiamo la mappa URL -> Servlet -->
+  <servlet-mapping>
+    <servlet-name>registrazioneServlet</servlet-name>
+    <url-pattern>/app/autenticazione</url-pattern>
+  </servlet-mapping>
 
 </web-app>

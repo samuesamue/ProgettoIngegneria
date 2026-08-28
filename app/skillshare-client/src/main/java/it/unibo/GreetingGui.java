@@ -106,7 +106,7 @@ public class GreetingGui {
             private void sendNameToServer() {
                 errorLabel.setText("");
                 String textToServer = nameField.getText();
-                if (!FieldVerifier.isValidName(textToServer)) {
+                if (FieldVerifier.isValidName(textToServer)) {
                     errorLabel.setText("Please enter at least four characters");
                     return;
                 }

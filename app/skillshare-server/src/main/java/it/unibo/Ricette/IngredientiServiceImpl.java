@@ -1,15 +1,15 @@
-package it.unibo;
-
-import java.util.List;
+package it.unibo.Ricette;
 
 import com.google.gwt.user.server.rpc.jakarta.RemoteServiceServlet;
+import it.unibo.IngredientiResponse;
+import it.unibo.IngredientiService;
 
 /**
  * The server side implementation of the RPC service.
  */
 @SuppressWarnings("serial")
 public class IngredientiServiceImpl extends RemoteServiceServlet implements
-        IngredientiService{
+        IngredientiService {
 
         @Override
         public Boolean aggiungiIngrediente(String ingrediente, Integer grammi) throws IllegalArgumentException {

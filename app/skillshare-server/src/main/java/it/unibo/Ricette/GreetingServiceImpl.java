@@ -1,17 +1,20 @@
-package it.unibo;
+package it.unibo.Ricette;
 
 import com.google.gwt.user.server.rpc.jakarta.RemoteServiceServlet;
+import it.unibo.FieldVerifier;
+import it.unibo.GreetingResponse;
+import it.unibo.GreetingService;
 
 /**
  * The server side implementation of the RPC service.
  */
 @SuppressWarnings("serial")
 public class GreetingServiceImpl extends RemoteServiceServlet implements
-		GreetingService {
+        GreetingService {
 
 	public GreetingResponse greetServer(String input) throws IllegalArgumentException {
 		// Verify that the input is valid.
-		if (!FieldVerifier.isValidName(input)) {
+		if (FieldVerifier.isValidName(input)) {
 			// If the input is not valid, throw an IllegalArgumentException back to
 			// the client.
 			throw new IllegalArgumentException(
