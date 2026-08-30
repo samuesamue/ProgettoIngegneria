@@ -10,10 +10,11 @@ public class Utente implements Serializable {
     private String mail;
     private String password;
     private Date data;
-    //private boolean isCompleted=false;
-    //bio
-    //tag competenze
-    //immagine profilo
+
+    //Campi per la personalizzazione del profilo
+    private String bio;
+    private String tagCompetenze;
+    private String immagineProfilo;
 
     public Utente(){};
 
@@ -77,5 +78,30 @@ public class Utente implements Serializable {
 
     public void setData(Date data) {
         this.data = data;
+    }
+
+    //Metodi per il profilo
+    public String getBio(){
+        return bio;
+    }
+
+    public void setBio(String bio){
+        this.bio = bio;
+    }
+
+    public String getTagCompetenze(){
+        return tagCompetenze;
+    }
+
+    public void setTagCompetenze(String tagCompetenze){
+        this.tagCompetenze = tagCompetenze;
+    }
+
+    public String getImmagineProfilo(){
+        return immagineProfilo;
+    }
+
+    public void setImmagineProfilo(String immagineProfilo){
+        this.immagineProfilo = immagineProfilo;
     }
 }
