@@ -17,6 +17,7 @@ public class Utente implements Serializable {
 
     public Utente(){};
 
+
     public Utente(String nome, String cognome){
         this.nome=nome;
         this.cognome=cognome;
@@ -27,7 +28,6 @@ public class Utente implements Serializable {
     public String getNome() {
         return nome;
     }
-
     public void setNome(String nome) {
         this.nome = nome;
     }
@@ -36,7 +36,6 @@ public class Utente implements Serializable {
     public String getCognome() {
         return cognome;
     }
-
     public void setCognome(String cognome){
         this.cognome=cognome;
     }
@@ -45,17 +44,15 @@ public class Utente implements Serializable {
     public String getUsername() {
         return username;
     }
-
-    //!! Username è chiave dell'hashmap DB
+    //
     public void setUsername(String Username) {
         this.username = Username;
     }
 
-    // Mail
+    // Mail !! mail è chiave dell'hashmap DB
     public String getMail() {
         return mail;
     }
-
     public void setMail(String mail) {
         this.mail = mail;
     }
@@ -64,7 +61,6 @@ public class Utente implements Serializable {
     public String getPassword() {
         return password;
     }
-
     //Usare con le registrazioni
     public void setPassword(String password) {
         this.password = password;
@@ -74,7 +70,6 @@ public class Utente implements Serializable {
     public Date getData() {
         return data;
     }
-
     public void setData(Date data) {
         this.data = data;
     }

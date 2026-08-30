@@ -170,12 +170,20 @@ public class RegistrazioneGui {
             rpcService.registraUtente(u, new AsyncCallback<Boolean>() {
                 @Override
                 public void onFailure(Throwable caught) {
-                    if (caught instanceof IllegalArgumentException) {
-                        String msg = caught.getMessage() == null ? "" : caught.getMessage();
+                    String msg = caught.getMessage() == null ? "" : caught.getMessage();
 
+                    // il vincolo di unicità ora è sull'email
+                    if (msg.contains("già registrato")) {
+                        evidenzia(txtMail, false);
+                        errMail.setText("Email già registrata, effettua il login.");
+                        mostraErrore(lblMessaggio, "Errore: questa email è già registrata.");
+                        return;
+                    }
+
+                    if (caught instanceof IllegalArgumentException) {
                         // Smista l'errore del server nei rispettivi campi
                         boolean isNomeErr = msg.contains("Nome");
-                        boolean isCognomeERr=msg.contains("Cognome");
+                        boolean isCognomeERr = msg.contains("Cognome");
                         boolean isUserErr = msg.contains("Username");
                         boolean isMailErr = msg.contains("mail");
                         boolean isDataErr = msg.contains("Data di nascita");
@@ -185,10 +193,10 @@ public class RegistrazioneGui {
                         if (isNomeErr) errNome.setText("Rifiutato dal server");
 
                         evidenzia(txtCognome, !isCognomeERr);
-                        if (isNomeErr) errCognome.setText("Rifiutato dal server");
+                        if (isCognomeERr) errCognome.setText("Rifiutato dal server");   // era isNomeErr, corretto
 
                         evidenzia(txtUser, !isUserErr);
-                        if (isUserErr) errUser.setText("Rifiutato dal server / Già in uso");
+                        if (isUserErr) errUser.setText("Rifiutato dal server");
 
                         evidenzia(txtMail, !isMailErr);
                         if (isMailErr) errMail.setText("Rifiutato dal server");
@@ -202,7 +210,8 @@ public class RegistrazioneGui {
                         mostraErrore(lblMessaggio, "Errore di validazione dal server. " + msg);
                         return;
                     }
-                    mostraErrore(lblMessaggio, "Errore di comunicazione col server: " + caught.getMessage());
+
+                    mostraErrore(lblMessaggio, "Errore di comunicazione col server: " + msg);
                 }
 
                 @Override
