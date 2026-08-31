@@ -39,6 +39,17 @@
     <url-pattern>/app/autenticazione</url-pattern>
   </servlet-mapping>
 
+  <!-- Servlet per gli annunci -->
+    <servlet>
+        <servlet-name>gestoreAnnunciServlet</servlet-name>
+        <servlet-class>it.unibo.GestoreAnnunciImpl</servlet-class>
+    </servlet>
+
+    <servlet-mapping>
+        <servlet-name>gestoreAnnunciServlet</servlet-name>
+        <url-pattern>/app/annunci</url-pattern>
+    </servlet-mapping>
+
   <!--Servlet per il profilo-->
  <servlet>
     <servlet-name>gestoreProfiloServlet</servlet-name>
