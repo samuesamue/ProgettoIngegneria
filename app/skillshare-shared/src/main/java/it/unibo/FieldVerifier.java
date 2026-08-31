@@ -48,7 +48,9 @@ public class FieldVerifier {
 	 * @param name the name to validate
 	 * @return true if valid, false if invalid
 	 */
+	//
 	public static boolean isValidName(String name) {
+		//vale anche per il cognome
 		if (name == null || name.isEmpty()) {
 			return false;
 		}
