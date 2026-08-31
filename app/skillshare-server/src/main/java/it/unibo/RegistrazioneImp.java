@@ -4,9 +4,15 @@ import com.google.gwt.user.server.rpc.jakarta.RemoteServiceServlet;
 
 public class RegistrazioneImp extends RemoteServiceServlet implements GestoreAutenticazione {
 
-    // Istanziamo il Proxy perchè la Servlet non parla mai direttamente col DB.
+    // Istanziamo il Proxy perché la Servlet non parla mai direttamente col DB.
     //Il proxy si occuperà dei controlli
-    private final GestoreAutenticazione proxy = new AutenticatoreProxy();
+
+    private final GestoreAutenticazione proxy;
+    public RegistrazioneImp() {
+        GestorePassword passwordManager = new PasswordManager();
+        GestoreAutenticazione autenticatoreReale = new AutenticatoreReale(passwordManager);
+        this.proxy = new AutenticatoreProxy(autenticatoreReale);
+    }
 
     @Override
     public Boolean registraUtente(Utente utente) throws Exception {

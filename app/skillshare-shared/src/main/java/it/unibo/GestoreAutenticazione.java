@@ -6,5 +6,5 @@ import com.google.gwt.user.client.rpc.RemoteServiceRelativePath;
 @RemoteServiceRelativePath("autenticazione")
 public interface GestoreAutenticazione  extends RemoteService{
     Boolean registraUtente(Utente utente) throws Exception;
-    Utente effettuaLogin(String username, String password) throws IllegalArgumentException;
+    Utente effettuaLogin(String mail, String password) throws IllegalArgumentException;
 }
