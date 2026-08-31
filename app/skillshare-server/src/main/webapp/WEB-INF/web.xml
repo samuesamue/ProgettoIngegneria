@@ -39,4 +39,13 @@
     <url-pattern>/app/autenticazione</url-pattern>
   </servlet-mapping>
 
+  <!--Servlet per il profilo-->
+ <servlet>
+    <servlet-name>gestoreProfiloServlet</servlet-name>
+    <servlet-class>it.unibo.GestoreProfiloImpl</servlet-class>
+  </servlet>
+  <servlet-mapping>
+    <servlet-name>gestoreProfiloServlet</servlet-name>
+    <url-pattern>/app/profilo</url-pattern> 
+  </servlet-mapping>
 </web-app>
