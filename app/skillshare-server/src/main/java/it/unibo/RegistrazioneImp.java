@@ -2,11 +2,10 @@ package it.unibo;
 
 import com.google.gwt.user.server.rpc.jakarta.RemoteServiceServlet;
 
-@SuppressWarnings("serial")
 public class RegistrazioneImp extends RemoteServiceServlet implements GestoreAutenticazione {
 
     // Istanziamo il Proxy perchè la Servlet non parla mai direttamente col DB.
-    //il proxy si occuperà dei controlli
+    //Il proxy si occuperà dei controlli
     private final GestoreAutenticazione proxy = new AutenticatoreProxy();
 
     @Override
@@ -16,8 +15,8 @@ public class RegistrazioneImp extends RemoteServiceServlet implements GestoreAut
     }
 
     @Override
-    public Utente effettuaLogin(String username, String password) throws IllegalArgumentException {
+    public Utente effettuaLogin(String mail, String password) throws IllegalArgumentException {
         // Stessa cosa per il login
-        return proxy.effettuaLogin(username, password);
+        return proxy.effettuaLogin(mail, password);
     }
 }

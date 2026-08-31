@@ -22,18 +22,18 @@
         <version>6.0.0</version>
       </dependency>
       <dependency>
-            <groupId>org.mapdb</groupId>
-            <artifactId>mapdb</artifactId>
-            <version>3.0.10</version>
-        </dependency>
+        <groupId>org.mapdb</groupId>
+        <artifactId>mapdb</artifactId>
+        <version>3.0.10</version>
+      </dependency>
       <dependency>
-          <groupId>org.junit.jupiter</groupId>
-          <artifactId>junit-jupiter</artifactId>
-          <version>5.10.2</version>
-          <scope>test</scope>
+        <groupId>org.junit.jupiter</groupId>
+        <artifactId>junit-jupiter</artifactId>
+        <version>5.10.2</version>
+        <scope>test</scope>
       </dependency>
     </dependencies>
-    
+
   </dependencyManagement>
   <build>
     <plugins>
@@ -48,6 +48,7 @@
           <devmodeArgs>
             <arg>-noserver</arg>
           </devmodeArgs>
+          <moduleName/>
         </configuration>
       </plugin>
     </plugins>
@@ -109,8 +110,9 @@
     </pluginManagement>
   </build>
   <modules>
-    <module>skillshare-client</module>
-    <module>skillshare-shared</module>
-    <module>skillshare-server</module>
-  </modules>
+  <module>skillshare-client</module>
+  <module>skillshare-shared</module>
+  <module>skillshare-server</module>
+  <module>skillshareIT</module>
+</modules>
 </project>
