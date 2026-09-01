@@ -79,4 +79,12 @@ public class FieldVerifier {
 		return !eta.before(ANNOMIN) && !eta.after(ANNOMAX);
 	}
 
+	public static boolean isValidBio(String bio){
+		return bio != null && bio.length() <= 100;
+	}
+
+	public static boolean isValidTag(String tag){
+		return tag != null && tag.length() > 0;
+	}
+
 }

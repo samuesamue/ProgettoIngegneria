@@ -1,7 +1,6 @@
 package it.unibo;
 
 import java.io.Serializable;
-import java.util.UUID; //genera una chiave alfanumerica univoca per ogni annuncio
 
 public class Annuncio implements Serializable {
 
@@ -15,8 +14,8 @@ public class Annuncio implements Serializable {
     public Annuncio() {
     }
 
-    public Annuncio(String titolo, String descrizione, String competenzaOfferta, String competenzaRichiesta, String autoreUsername) {
-        this.id = UUID.randomUUID().toString(); 
+    public Annuncio(String id, String titolo, String descrizione, String competenzaOfferta, String competenzaRichiesta, String autoreUsername) {
+        this.id = id;
         this.titolo = titolo;
         this.descrizione = descrizione;
         this.competenzaOfferta = competenzaOfferta;
