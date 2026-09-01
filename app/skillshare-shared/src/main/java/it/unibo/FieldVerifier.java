@@ -87,4 +87,16 @@ public class FieldVerifier {
 		return tag != null && tag.length() > 0;
 	}
 
+	public static boolean isValidTitoloAnnuncio(String titolo) {
+        return titolo != null && !titolo.trim().isEmpty() && titolo.length() <= 70;
+    }
+
+    public static boolean isValidDescrizioneAnnuncio(String descrizione) {
+        return descrizione != null && !descrizione.trim().isEmpty() && descrizione.length() <= 200;
+    }
+
+    public static boolean isValidCompetenzaOfferta(String competenza) {
+        return competenza != null && !competenza.trim().isEmpty() && competenza.length() <= 50;
+    }
+
 }
