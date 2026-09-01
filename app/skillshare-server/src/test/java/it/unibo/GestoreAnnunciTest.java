@@ -56,7 +56,8 @@ public class GestoreAnnunciTest {
 
         // Prepariamo l'annuncio per il test
         annuncioValido = new Annuncio(
-            "Scambio Lezioni di Chitarra",
+            "id_test_01",
+            "Scambio lezioni di chitarra",
             "Offro lezioni base di chitarra in cambio di ripetizioni di Java.",
             "Chitarra",
             "Programmazione Java",
