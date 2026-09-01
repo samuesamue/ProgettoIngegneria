@@ -9,7 +9,7 @@ import com.google.gwt.user.datepicker.client.DatePicker;
 
 import java.util.Date;
 
-public class RegistrazioneGui {
+public class HomePageGUI {
 
     private final GestoreAutenticazioneAsync rpcService = GWT.create(GestoreAutenticazione.class);
     private static final String COLORE_ERRORE = "2px solid #e53935";
@@ -256,7 +256,85 @@ public class RegistrazioneGui {
         panel.add(btnRegistrati);
         panel.add(lblMessaggio);
 
-        // TO DO: GUI LOGIN
+        // ==================== LOGIN ====================
+        panel.add(new HTML("<h3>Accedi</h3>"));
+
+        TextBox txtLoginMail = new TextBox();
+        txtLoginMail.getElement().setPropertyString("placeholder", "Email");
+        txtLoginMail.getElement().setId("login-mail");
+        Label errLoginMail = new Label();
+        errLoginMail.getElement().getStyle().setColor("red");
+        errLoginMail.getElement().setId("login-mail-error");
+        HorizontalPanel rowLoginMail = new HorizontalPanel();
+        rowLoginMail.setSpacing(5);
+        rowLoginMail.add(txtLoginMail);
+        rowLoginMail.add(errLoginMail);
+
+        PasswordTextBox txtLoginPassword = new PasswordTextBox();
+        txtLoginPassword.getElement().setPropertyString("placeholder", "Password");
+        txtLoginPassword.getElement().setId("login-password");
+        Label errLoginPassword = new Label();
+        errLoginPassword.getElement().getStyle().setColor("red");
+        errLoginPassword.getElement().setId("login-password-error");
+        HorizontalPanel rowLoginPassword = new HorizontalPanel();
+        rowLoginPassword.setSpacing(5);
+        rowLoginPassword.add(txtLoginPassword);
+        rowLoginPassword.add(errLoginPassword);
+
+        Button btnLogin = new Button("Accedi");
+        btnLogin.getElement().setId("login-submit");
+
+        Label lblLoginMessaggio = new Label();
+        lblLoginMessaggio.getElement().setId("login-message");
+
+        btnLogin.addClickHandler(event -> {
+            errLoginMail.setText("");
+            errLoginPassword.setText("");
+            lblLoginMessaggio.setText("");
+
+            boolean mailOk = FieldVerifier.isValidEmail(txtLoginMail.getText());
+            boolean passOk = !txtLoginPassword.getText().isEmpty();
+
+            evidenzia(txtLoginMail, mailOk);
+            if (!mailOk) errLoginMail.setText("Email non valida");
+
+            evidenzia(txtLoginPassword, passOk);
+            if (!passOk) errLoginPassword.setText("Password obbligatoria");
+
+            if (!mailOk || !passOk) {
+                mostraErrore(lblLoginMessaggio, "Controlla gli errori segnalati accanto ai campi e riprova.");
+                return;
+            }
+
+            rpcService.effettuaLogin(txtLoginMail.getText(), txtLoginPassword.getText(), new AsyncCallback<Utente>() {
+                @Override
+                public void onFailure(Throwable caught) {
+                    if (caught instanceof IllegalArgumentException) {
+                        evidenzia(txtLoginMail, false);
+                        errLoginMail.setText("Rifiutata dal server");
+                        mostraErrore(lblLoginMessaggio, "Errore: " + caught.getMessage());
+                        return;
+                    }
+                    mostraErrore(lblLoginMessaggio, "Errore di comunicazione col server: " + caught.getMessage());
+                }
+
+                @Override
+                public void onSuccess(Utente utente) {
+                    if (utente != null) {
+                        mostraSuccesso(lblLoginMessaggio, "Benvenuto/a, " + utente.getNome() + "!");
+                    } else {
+                        evidenzia(txtLoginMail, false);
+                        evidenzia(txtLoginPassword, false);
+                        mostraErrore(lblLoginMessaggio, "Credenziali errate, riprova.");
+                    }
+                }
+            });
+        });
+
+        panel.add(rowLoginMail);
+        panel.add(rowLoginPassword);
+        panel.add(btnLogin);
+        panel.add(lblLoginMessaggio);
 
         // Stampo a schermo
         RootPanel.get().clear();
