@@ -1,39 +1,79 @@
 package it.unibo;
 
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-import static org.junit.jupiter.api.Assertions.*;
+import com.google.gwt.user.server.rpc.jakarta.AbstractRemoteServiceServlet;
+import jakarta.servlet.ServletConfig;
+import jakarta.servlet.ServletContext;
+import jakarta.servlet.http.HttpServletRequest;
+import org.junit.jupiter.api.*;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
+import org.mockito.junit.jupiter.MockitoSettings;
+import org.mockito.quality.Strictness;
 
+import java.lang.reflect.Field;
+
+import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.Mockito.*;
+
+// TEST DELLA SERVLET
+@ExtendWith(MockitoExtension.class)
+@MockitoSettings(strictness = Strictness.LENIENT)
 public class GestoreProfiloTest{
 
-    private GestoreProfiloImpl gestoreProfilo;
+    // Configurazione standard per testare una GWT Servlet 
+    @Mock private ServletConfig servletConfig;
+    @Mock private ServletContext servletContext;
+    @Mock private HttpServletRequest request;
 
-    @BeforeEach
-    public void setUp(){
-        //Inizializziamo il nostro servizio prima di ogni test
-        gestoreProfilo = new GestoreProfiloImpl();
+    private GestoreProfiloImpl gestoreProfilo;
+    private Utente utenteDiTest;
+
+    @BeforeAll
+    static void testmode(){
+        DatabaseCore.enableTestMode();
     }
 
+    @BeforeEach
+    public void setUp() throws Exception{
+        // Inizializzazione finta del web server
+        when(servletConfig.getServletContext()).thenReturn(servletContext);
+        when(servletContext.getServerInfo()).thenReturn("MockServer/1.0");
+        when(request.getHeader("User-Agent")).thenReturn("MockBrowser/1.0");
+
+        gestoreProfilo = new GestoreProfiloImpl();
+        gestoreProfilo.init(servletConfig);
+
+        ThreadLocal<HttpServletRequest> threadLocal = new ThreadLocal<>();
+        threadLocal.set(request);
+
+        Field field = AbstractRemoteServiceServlet.class.getDeclaredField("perThreadRequest");
+        field.setAccessible(true);
+        field.set(gestoreProfilo, threadLocal);
+
+        //Preparazione dell'utente di test 
+        utenteDiTest = new Utente("Ludovica", "Govoni");
+        utenteDiTest.setUsername("govonsx");
+        utenteDiTest.setBio("Nel tempo libero creo capi all'uncinetto");
+        utenteDiTest.setTagCompetenze("Uncinetto, Maglia, Ricamo");
+    }
+
+    @AfterAll
+    static void testmodeoff() {
+        DatabaseCore.disableTestMode();
+    }
+
+    // TEST DI ACCETTAZIONE 
     @Test
-    public void testAggiornamentoProfiloRiuscito(){
-        //GIVEN: creiamo un utente di base
-        Utente utente = new Utente("Ludovica", "Govoni");
-        utente.setUsername("govonsx");
-
-        //Simuliamo inserimento dati dal frontend
-        utente.setBio("Appassionata di uncinetto.");
-        utente.setTagCompetenze("Uncinetto, Ricamo, Maglia");
-
-        try{
-            //WHEN: chiamiamo metodo per salvare
-            Utente utenteSalvato = gestoreProfilo.aggiornaProfilo(utente);
-
-            //THEN: verifichiamo che i dati siano stati salvati e restituiti correttamente
-            assertNotNull(utenteSalvato, "L'utente salvato non dovrebbe essere null");
-            assertEquals("Appassionata di uncinetto.", utenteSalvato.getBio());
-            assertEquals("Uncinetto, Ricamo, Maglia", utenteSalvato.getTagCompetenze());
-        }catch (Exception e){
-            fail("L'aggiornamento ha lanciato un'eccezione: "+e.getMessage());
+    void aggiornaProfilo_ConDatiCorretti_DeveTornareUtenteAggiornato() {
+        try {
+            Utente utenteSalvato = gestoreProfilo.aggiornaProfilo(utenteDiTest);
+            
+            assertNotNull(utenteSalvato, "L'utente salvato non deve essere nullo");
+            assertEquals("Nel tempo libero creo capi all'uncinetto", utenteSalvato.getBio());
+            assertEquals("Uncinetto, Maglia, Ricamo", utenteSalvato.getTagCompetenze());
+        } catch (Exception e) {
+            throw new RuntimeException(e);
         }
     }
 }
