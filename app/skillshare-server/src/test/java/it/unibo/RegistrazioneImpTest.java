@@ -56,7 +56,7 @@ public class RegistrazioneImpTest {
         uservalido = new Utente("Mario","Rossi");
         uservalido.setUsername("mario123");
         uservalido.setPassword("passwordSicura123");
-        uservalido.setMail("mario@email.com");
+        uservalido.setMail("mario@email.com." + System.currentTimeMillis());
         uservalido.setData(new java.util.Date());
 
         userNONvalido = new Utente("","b");
@@ -87,11 +87,44 @@ public class RegistrazioneImpTest {
     }
     //TEST DI ACCETTAZIONE 3
     @Test
-    public void registraUtente_UnUtenteGiaRegistratoConUnaMail_LanciaClassNotFoundExc()  {
+    public void registraUtente_UnUtenteGiaRegistratoConUnaMail_LanciaClassNotFoundExc() throws Exception {
+    registratore.registraUtente(uservalido);
         assertThrows(Exception.class,
                 () -> registratore.registraUtente(uservalido));
     }
     /**TEST LOGIN
-    METODO LOGIN NON ANCORA PRONTO
      */
+    @Test
+    @DisplayName("Scenario 1: Login effettuato con successo")
+    void effettuaLogin_ConCredenzialiCorrette_RitornaUtente() throws Exception {
+        // Arrange: Prima registriamo l'utente valido
+        registratore.registraUtente(uservalido);
+
+        // Act: Tentiamo il login con mail e password corrette
+        Utente utenteLoggato = registratore.effettuaLogin(uservalido.getMail(), "passwordSicura123");
+
+        // Assert: L'utente viene autenticato correttamente
+        assertNotNull(utenteLoggato, "L'utente loggato non deve essere null");
+        assertEquals(uservalido.getMail(), utenteLoggato.getMail());
+    }
+
+    @Test
+    @DisplayName("Scenario 2: Fallimento per credenziali errate")
+    void effettuaLogin_ConPasswordErrata_RitornaNullOEccezione() throws Exception {
+        // Arrange: Registriamo l'utente
+        registratore.registraUtente(uservalido);
+
+        // Act & Assert: Verifichiamo che con una password errata il login fallisca (restituendo null o gestendo l'errore)
+        Utente utenteLoggato = registratore.effettuaLogin(uservalido.getMail(), "passwordSbagliata");
+        assertNull(utenteLoggato, "Il login con password errata deve restituire null");
+    }
+
+    @Test
+    @DisplayName("Scenario 3: Fallimento per campi vuoti o mancanti")
+    void effettuaLogin_ConCampiVuoti_LanciaEccezione() {
+        // Act & Assert: Campi vuoti devono impedire l'accesso lanciando un'eccezione di validazione
+        assertThrows(IllegalArgumentException.class,
+                () -> registratore.effettuaLogin("", ""));
+    }
+
 }

@@ -1,7 +1,10 @@
 package it.unibo;
 //classe proxy che si occupa del controllo dei valori inseriti
 public class AutenticatoreProxy implements GestoreAutenticazione{
-    private final GestoreAutenticazione autenticatoreReale=new AutenticatoreReale();
+    private final GestoreAutenticazione autenticatoreReale;
+    public AutenticatoreProxy(GestoreAutenticazione autenticatoreReale) {
+        this.autenticatoreReale = autenticatoreReale;
+    }
 
     @Override
     public Boolean registraUtente(Utente utente) throws Exception {
@@ -31,7 +34,10 @@ public class AutenticatoreProxy implements GestoreAutenticazione{
     }
 //TO DO
     @Override
-    public Utente effettuaLogin(String username, String password) throws IllegalArgumentException {
-        return null;
+    public Utente effettuaLogin(String mail, String password) throws IllegalArgumentException {
+        if(!FieldVerifier.isValidEmail(mail)){
+            throw new IllegalArgumentException("mail non valida. Assicurati di avere scritto @");
+        }
+        return autenticatoreReale.effettuaLogin(mail, password);
     }
 }
