@@ -21,16 +21,18 @@ public class AutenticatoreProxyTest {
 
     @BeforeEach
     public void setUp() {
-        proxy = new AutenticatoreProxy();
+        GestorePassword passwordManager = new PasswordManager();
+        GestoreAutenticazione autenticatoreReale = new AutenticatoreReale(passwordManager);
+        proxy = new AutenticatoreProxy(autenticatoreReale);
 
-        // 2. Prepariamo l'utente valido
+        // utente valido
         utenteValido = new Utente("Mario", "Rossi");
         utenteValido.setUsername("mario123");
-        utenteValido.setMail("mario@mail.com");
+        utenteValido.setMail("mario@mail.com" + System.currentTimeMillis());
         utenteValido.setPassword("passwordSicura123");
         utenteValido.setData(new Date());
 
-        // 3. Prepariamo l'utente non valido
+        // utente non valido
         utenteNonValido = new Utente("L", "Ver");
         utenteNonValido.setUsername("");
         utenteNonValido.setMail("mariomailcom");
@@ -61,7 +63,44 @@ public class AutenticatoreProxyTest {
         assertThrows(IllegalArgumentException.class,
                 () -> proxy.registraUtente(utenteNonValido));
     }
+    // TEST LOGIN
 
+    @Test
+    @DisplayName("Login con credenziali corrette restituisce l'utente")
+    public void effettuaLogin_credenzialiCorrette_deveTornareUtente() throws Exception {
+        // Arrange: Registriamo l'utente nel sistema
+        proxy.registraUtente(utenteValido);
+
+        // Act: Tentiamo il login
+        Utente utenteLoggato = proxy.effettuaLogin(utenteValido.getMail(), utenteValido.getPassword());
+
+        // Assert: L'utente restituito non deve essere null e la mail deve coincidere
+        assertNotNull(utenteLoggato, "L'utente loggato non dovrebbe essere null con credenziali corrette");
+        assertEquals(utenteValido.getMail(), utenteLoggato.getMail());
+    }
+
+    @Test
+    @DisplayName("Login con password errata restituisce null")
+    public void effettuaLogin_passwordErrata_deveTornareNull() throws Exception {
+        // Arrange: Registriamo l'utente
+        proxy.registraUtente(utenteValido);
+
+        // Act: Tentiamo il login con password sbagliata
+        Utente utenteLoggato = proxy.effettuaLogin(utenteValido.getMail(), "passwordSbagliatissima");
+
+        // Assert: Il sistema deve respingere l'accesso restituendo null
+        assertNull(utenteLoggato, "Il sistema deve restituire null se la password è errata");
+    }
+
+    @Test
+    @DisplayName("Login con email inesistente restituisce null")
+    public void effettuaLogin_utenteNonEsistente_deveTornareNull() throws Exception {
+        // Act: Tentiamo il login con una mail mai registrata
+        Utente utenteLoggato = proxy.effettuaLogin("utentefantasma@mail.com", "pass123");
+
+        // Assert
+        assertNull(utenteLoggato, "Il sistema deve restituire null se l'utente non esiste");
+    }
 
     @AfterAll
     public static void testmodeoff() {

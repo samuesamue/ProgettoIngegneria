@@ -21,8 +21,8 @@ public class App implements EntryPoint {
 		utenteFinto.setTagCompetenze("GWT, Java, Frontend");
 
 
-		//new RegistrazioneGui().mostra();
-		//new PersonalizzaProfiloGui().mostra(utenteFinto);
+		new RegistrazioneGui().mostra();
+		new PersonalizzaProfiloGui().mostra(utenteFinto);
 		new PubblicaAnnunciGui().mostra(utenteFinto);
 
 	}
