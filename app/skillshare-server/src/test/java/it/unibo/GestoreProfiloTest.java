@@ -53,6 +53,7 @@ public class GestoreProfiloTest{
 
         //Preparazione dell'utente di test 
         utenteDiTest = new Utente("Ludovica", "Govoni");
+        utenteDiTest.setMail("ludovica.govoni@gmail.com");
         utenteDiTest.setUsername("govonsx");
         utenteDiTest.setBio("Nel tempo libero creo capi all'uncinetto");
         utenteDiTest.setTagCompetenze("Uncinetto, Maglia, Ricamo");
