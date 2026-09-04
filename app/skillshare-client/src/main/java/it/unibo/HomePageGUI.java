@@ -321,7 +321,8 @@ public class HomePageGUI {
                 @Override
                 public void onSuccess(Utente utente) {
                     if (utente != null) {
-                        mostraSuccesso(lblLoginMessaggio, "Benvenuto/a, " + utente.getNome() + "!");
+                        //mostraSuccesso(lblLoginMessaggio, "Benvenuto/a, " + utente.getNome() + "!");
+                        new PubblicaAnnunciGui().mostra(utente);
                     } else {
                         evidenzia(txtLoginMail, false);
                         evidenzia(txtLoginPassword, false);

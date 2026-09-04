@@ -14,16 +14,17 @@ public class App implements EntryPoint {
 	public void onModuleLoad() {
 
 		//CAMPI DI PROVA
-		Utente utenteFinto = new Utente("Ludovica", "Govoni");
+		/*Utente utenteFinto = new Utente("Ludovica", "Govoni");
 		utenteFinto.setMail("ludovica.govoni@gmail.com");
 		utenteFinto.setUsername("govonsx");
 		utenteFinto.setBio("Sto creando la mia prima interfaccia in GWT!");
 		utenteFinto.setTagCompetenze("GWT, Java, Frontend");
+		*/
 
 
 		new HomePageGUI().mostra();
-		new PersonalizzaProfiloGui().mostra(utenteFinto);
-		new PubblicaAnnunciGui().mostra(utenteFinto);
+		//new PersonalizzaProfiloGui().mostra(utenteFinto);
+		//new PubblicaAnnunciGui().mostra(utenteFinto);
 
 	}
 }
