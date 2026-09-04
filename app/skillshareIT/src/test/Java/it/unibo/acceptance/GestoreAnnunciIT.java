@@ -36,7 +36,22 @@ class GestoreAnnunciIT {
 
     @BeforeEach
     void vaiAllaPagina() {
-        pagina = new GestoreAnnunciPage(driver, TIMEOUT).apri(BASE_URL);
+        //pagina = new GestoreAnnunciPage(driver, TIMEOUT).apri(BASE_URL);
+        // 1. Partiamo dalla pagina di Login
+        RegistrazionePage regPage = new RegistrazionePage(driver, TIMEOUT).apri(BASE_URL);
+
+        // 2. Creiamo un utente al volo e facciamo l'accesso per sbloccare la bacheca
+        String emailUnica = "test" + System.currentTimeMillis() + "@example.com";
+        regPage.compila("Test", "User", "test" + System.currentTimeMillis(), emailUnica, "01/01/2000", "passwordSicura123").registrati();
+        
+        regPage.compilaLogin(emailUnica, "passwordSicura123").accedi();
+
+        // 3. Ora siamo stati reindirizzati. Inizializziamo la pagina annunci (senza usare .apri() che ci riporterebbe al login!)
+        pagina = new GestoreAnnunciPage(driver, TIMEOUT);
+        
+        // Aspettiamo che la bacheca sia effettivamente visibile prima di far partire i test
+        new org.openqa.selenium.support.ui.WebDriverWait(driver, TIMEOUT)
+            .until(org.openqa.selenium.support.ui.ExpectedConditions.elementToBeClickable(org.openqa.selenium.By.id("annuncio-submit")));
     }
 
     @Nested

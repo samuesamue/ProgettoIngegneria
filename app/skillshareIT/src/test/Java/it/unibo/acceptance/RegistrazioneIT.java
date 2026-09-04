@@ -97,10 +97,11 @@ class RegistrazioneIT {
         void datiValidi_registrazioneCompletataConSuccesso() {
             // Arrange: username unico per non collidere con esecuzioni precedenti
             String usernameUnico = "utente" + System.currentTimeMillis();
+            String emailUnica = "mario" + System.currentTimeMillis() + "@example.com";
 
             // Act
             pagina.compila("Mario", "Rossi", usernameUnico,
-                    "mario@example.com", "15/06/1998", "passwordSicura123");
+                    emailUnica, "15/06/1998", "passwordSicura123");
             pagina.registrati();
 
             // Assert
