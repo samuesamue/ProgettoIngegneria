@@ -182,6 +182,14 @@ public class PubblicaAnnunciGui {
         panel.add(new Label("Annunci disponibili:"));
         panel.add(panelListaAnnunci);
 
+        Button btnBacheca = new Button("Visualizza proposte");
+        btnBacheca.getElement().setId("btn-bacheca-proposte");
+        btnBacheca.addClickHandler(event -> {
+            // Quando l'utente clicca sul pulsante, mostriamo la bacheca delle proposte
+            new BachecaProposteGUI().mostra(utenteLoggato);
+        });
+        panel.add(btnBacheca);
+
         //Pulizia e stampa finale
         RootPanel.get().clear();
         RootPanel.get().add(panel);
