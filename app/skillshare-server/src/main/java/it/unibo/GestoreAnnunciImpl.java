@@ -8,7 +8,7 @@ import org.mapdb.Serializer;
 import java.util.ArrayList;
 import java.util.List;
 
-@SuppressWarnings("serial")
+@SuppressWarnings("unchecked")
 public class GestoreAnnunciImpl extends RemoteServiceServlet implements GestoreAnnunci {
 
     @Override
@@ -55,5 +55,95 @@ public class GestoreAnnunciImpl extends RemoteServiceServlet implements GestoreA
         }
         
         return listaAnnunci;
+    }
+
+    @Override
+    public List<Annuncio> ottieniAnnunciUtente(String username) throws Exception {
+        DB db = DatabaseCore.getDB();
+        List<Annuncio> listaAnnunci = new ArrayList<>();
+        
+        try {
+            HTreeMap<String, Annuncio> mappaAnnunci = db.hashMap("annunci")
+                .keySerializer(Serializer.STRING)
+                .valueSerializer(Serializer.JAVA)
+                .createOrOpen();
+            
+            // Filtriamo solo gli annunci dell'utente richiesto
+            for (Annuncio annuncio : mappaAnnunci.values()) {
+                if (annuncio.getAutoreUsername().equals(username)) {
+                    listaAnnunci.add(annuncio);
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace(); 
+        }
+        
+        return listaAnnunci;
+    }
+
+    @Override
+    public Boolean modificaAnnuncio(Annuncio annuncioModificato) throws Exception {
+        DB db = DatabaseCore.getDB();
+        try {
+            HTreeMap<String, Annuncio> mappaAnnunci = db.hashMap("annunci")
+                .keySerializer(Serializer.STRING)
+                .valueSerializer(Serializer.JAVA)
+                .createOrOpen();
+            
+            if (!mappaAnnunci.containsKey(annuncioModificato.getId())) {
+                return false;
+            }
+            
+            Annuncio annuncioSicuro = mappaAnnunci.get(annuncioModificato.getId());
+            
+            // SICUREZZA: Blocchiamo la modifica se non sei l'autore originale
+            if (!annuncioSicuro.getAutoreUsername().equals(annuncioModificato.getAutoreUsername())) {
+                return false; 
+            }
+            
+            // Aggiorniamo solo i campi modificabili, ID e Autore restano protetti
+            annuncioSicuro.setTitolo(annuncioModificato.getTitolo());
+            annuncioSicuro.setDescrizione(annuncioModificato.getDescrizione());
+            annuncioSicuro.setCompetenzaOfferta(annuncioModificato.getCompetenzaOfferta());
+            annuncioSicuro.setCompetenzaRichiesta(annuncioModificato.getCompetenzaRichiesta());
+            
+            mappaAnnunci.put(annuncioSicuro.getId(), annuncioSicuro);
+            DatabaseCore.commit(); 
+            return true;
+
+        } catch (Exception e) {
+            e.printStackTrace(); 
+            return false;
+        }
+    }
+
+    @Override
+    public Boolean eliminaAnnuncio(String id, String username) throws Exception {
+        DB db = DatabaseCore.getDB();
+        try {
+            HTreeMap<String, Annuncio> mappaAnnunci = db.hashMap("annunci")
+                .keySerializer(Serializer.STRING)
+                .valueSerializer(Serializer.JAVA)
+                .createOrOpen();
+            
+            if (!mappaAnnunci.containsKey(id)) {
+                return false;
+            }
+            
+            Annuncio annuncioSicuro = mappaAnnunci.get(id);
+            
+            // SICUREZZA: Blocchiamo l'eliminazione se non sei l'autore originale
+            if (!annuncioSicuro.getAutoreUsername().equals(username)) {
+                return false; 
+            }
+            
+            mappaAnnunci.remove(id);
+            DatabaseCore.commit(); 
+            return true;
+            
+        } catch (Exception e) {
+            e.printStackTrace(); 
+            return false;
+        }
     }
 }

@@ -12,4 +12,10 @@ public interface GestoreAnnunci extends RemoteService {
     
     // Metodo per recuperare tutti gli annunci pubblicati sulla piattaforma
     List<Annuncio> ottieniTuttiGliAnnunci() throws Exception;
+
+    List<Annuncio> ottieniAnnunciUtente(String username) throws Exception;
+    
+    Boolean modificaAnnuncio(Annuncio annuncio) throws Exception;
+    
+    Boolean eliminaAnnuncio(String id, String username) throws Exception;
 }
