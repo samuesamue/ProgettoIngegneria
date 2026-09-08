@@ -94,11 +94,12 @@ public class RegistrazionePage {
 
     public RegistrazionePage accedi() {
         bottoneAccedi.click();
-        wait.until(d -> !messaggioLogin.getText().isEmpty());
+        //wait.until(d -> !messaggioLogin.getText().isEmpty());
         return this;
     }
 
     public String testoMessaggioLogin() {
+        wait.until(d -> !messaggioLogin.getText().isEmpty());
         return messaggioLogin.getText();
     }
 

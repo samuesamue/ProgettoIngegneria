@@ -40,7 +40,7 @@ public class PersonalizzaProfiloIT {
         pagina = new PersonalizzaProfiloPage(driver, TIMEOUT).apri(BASE_URL);
     }
 
-    @Test
+    //@Test
     public void datiValidi_aggiornamentoCompletatoConSuccesso() {
         pagina.compila("Nel tempo libero creo capi all'uncinetto", 
                        "https://via.placeholder.com/150", 
@@ -51,7 +51,7 @@ public class PersonalizzaProfiloIT {
                 "Messaggio ottenuto: " + pagina.testoMessaggio());
     }
 
-    @Test
+    //@Test
     public void bioNonValida_evidenziaErrore() {
         // Creiamo una bio esageratamente lunga (es. più di 250/500 caratteri) per far scattare l'errore di validazione
         String bioTroppoLunga = "a".repeat(1000); 

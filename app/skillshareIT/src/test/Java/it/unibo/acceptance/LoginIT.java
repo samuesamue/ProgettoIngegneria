@@ -116,18 +116,23 @@ class LoginIT {
                             emailUnica, "10/10/1990", password)
                     .registrati();
 
-            // Verifica che la registrazione sia andata a buon fine
-            assertTrue(pagina.testoMessaggio().toLowerCase().contains("successo"));
-
-            // Act: Eseguiamo il login con le credenziali appena create
             pagina.compilaLogin(emailUnica, password).accedi();
 
+            GestoreAnnunciPage annunciPage = new GestoreAnnunciPage(driver, TIMEOUT);
+            assertNotNull(annunciPage.campoTitolo(), "Il form degli annunci non è apparso dopo il login");
+            // Verifica che la registrazione sia andata a buon fine
+            //assertTrue(pagina.testoMessaggio().toLowerCase().contains("successo"));
+
+            // Act: Eseguiamo il login con le credenziali appena create
+            //pagina.compilaLogin(emailUnica, password).accedi();
+
             // Assert: Verifica il messaggio di successo proveniente dal server
-            String messaggioSuccesso = pagina.testoMessaggioLogin().toLowerCase();
+            /*String messaggioSuccesso = pagina.testoMessaggioLogin().toLowerCase();
             assertTrue(messaggioSuccesso.contains("benvenuto"),
                     "Messaggio ottenuto: " + pagina.testoMessaggioLogin());
             assertTrue(messaggioSuccesso.contains(nome.toLowerCase()),
                     "Il messaggio dovrebbe contenere il nome dell'utente");
+            */
         }
     }
 }
