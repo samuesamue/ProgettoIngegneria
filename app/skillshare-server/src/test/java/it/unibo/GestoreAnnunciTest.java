@@ -97,4 +97,50 @@ public class GestoreAnnunciTest {
             fail("Il test ha lanciato un'eccezione imprevista: " + e.getMessage());
         }
     }
+
+    @Test
+    @DisplayName("Recupero annunci con database popolato")
+    void testVisualizzazioneProposteDisponibili(){
+        try {
+            Annuncio proposta1 = new Annuncio("id_test_01", "Scambio Bici", "Offro bici in cambio di un monopattino", "Bici", "Monopattino", "mario_rossi");
+            Annuncio proposta2 = new Annuncio("id_test_02", "Lezioni di Inglese", "Offro lezioni in cambio di ripetizioni di matematica", "Inglese", "Matematica", "giulia_bianchi");
+            
+            // Pubblicazione delle proposte
+            gestore.pubblicaAnnuncio(proposta1);
+            gestore.pubblicaAnnuncio(proposta2);
+
+            List<Annuncio> proposteDisponibili = gestore.ottieniTuttiGliAnnunci();
+
+            assertNotNull(proposteDisponibili, "La lista delle proposte non deve essere null");
+            assertTrue(proposteDisponibili.size() >= 2, "La lista delle proposte deve contenere almeno 2 elementi");
+
+            boolean trovatoProposta1 = false;
+            boolean trovatoProposta2 = false;
+            for (Annuncio a : proposteDisponibili) {
+                if (a.getId().equals(proposta1.getId())) {
+                    trovatoProposta1 = true;
+                }
+                if (a.getId().equals(proposta2.getId())) {
+                    trovatoProposta2 = true;
+                }
+            }
+            assertTrue(trovatoProposta1, "La proposta 1 deve essere presente nella lista");
+            assertTrue(trovatoProposta2, "La proposta 2 deve essere presente nella lista");
+        } catch (Exception e) {
+            fail("Il test ha lanciato un'eccezione imprevista: " + e.getMessage());
+        }
+    }
+
+    @Test 
+    @DisplayName("Nessuna proposta disponibile")
+    void testNessunaPropostaDisponibile(){
+        try {
+            List<Annuncio> proposteDisponibili = gestore.ottieniTuttiGliAnnunci();
+
+            // Il sistema restituisce una lista valida (vuota []) senza dare errori
+            assertNotNull(proposteDisponibili, "La lista delle proposte non deve essere null");
+        } catch (Exception e) {
+            fail("Il test ha lanciato un'eccezione imprevista: " + e.getMessage());
+        }
+    }
 }
