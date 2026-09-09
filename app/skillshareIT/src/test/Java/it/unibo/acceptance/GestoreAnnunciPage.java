@@ -60,6 +60,97 @@ public class GestoreAnnunciPage {
         return this;
     }
 
+    // Metodo di navigazione per spostarsi nella vista "I Miei Annunci"
+    public GestoreAnnunciPage apriMieiAnnunci() {
+        WebElement btnMieiAnnunci = wait.until(ExpectedConditions.elementToBeClickable(By.xpath("//button[@id='btn-miei-annunci' or normalize-space()='I Miei Annunci']")));
+        btnMieiAnnunci.click();
+        // Attende che compaia il titolo del pannello dei propri annunci
+        wait.until(ExpectedConditions.visibilityOfElementLocated(By.xpath("//*[contains(text(), 'I Miei Annunci')]")));
+        return this;
+    }
+
+    public boolean isAnnuncioPresente(String titolo) {
+        try {
+            wait.until(ExpectedConditions.visibilityOfElementLocated(
+                By.xpath("//*[contains(text(), '" + titolo + "')]")
+            ));
+            return true;
+        } catch (Exception e) {
+            return false;
+        }
+    }
+
+    public GestoreAnnunciPage eliminaAnnuncio(String titolo) {
+        apriMieiAnnunci();
+        // 1. Individua direttamente la card tramite il testo contenuto ovunque al suo interno
+        WebElement cardAnnuncio = wait.until(ExpectedConditions.visibilityOfElementLocated(
+            By.xpath("//*[contains(@class, 'annuncio-card') and contains(., '" + titolo + "')]")
+        ));
+
+        // 2. Trova e clicca il bottone elimina associato
+        WebElement bottoneElimina = cardAnnuncio.findElement(By.xpath(".//button[starts-with(@id, 'btn-elimina-')]"));
+        bottoneElimina.click();
+
+        // 3. Clicca sul tasto "Sì" del popup di conferma GWT
+        WebElement btnConfermaSi = wait.until(ExpectedConditions.elementToBeClickable(By.id("btn-conferma-elimina-si")));
+        btnConfermaSi.click();
+
+        // 4. Gestione dell'alert nativo di successo
+        try {
+            wait.until(ExpectedConditions.alertIsPresent());
+            driver.switchTo().alert().accept();
+        } catch (Exception ignored) {}
+
+        // 5. Attendiamo finché la card non scompare dal DOM
+        wait.until(ExpectedConditions.invisibilityOf(cardAnnuncio));
+
+        return this;
+    }
+
+    public GestoreAnnunciPage modificaAnnuncio(String titoloVecchio, String nuovoTitolo, String nuovaDescrizione) {
+        apriMieiAnnunci();
+        // 1. Individua la card tramite il testo contenuto ovunque al suo interno
+        WebElement cardAnnuncio = wait.until(ExpectedConditions.visibilityOfElementLocated(
+            By.xpath("//*[contains(@class, 'annuncio-card') and contains(., '" + titoloVecchio + "')]")
+        ));
+
+        // 2. Trova e clicca il bottone modifica associato
+        WebElement bottoneModifica = cardAnnuncio.findElement(By.xpath(".//button[starts-with(@id, 'btn-modifica-')]"));
+        bottoneModifica.click();
+
+        // 3. Compila la DialogBox di modifica usando gli ID dedicati
+        WebElement campoModificaTitolo = wait.until(ExpectedConditions.visibilityOfElementLocated(By.id("modifica-titolo")));
+        campoModificaTitolo.clear();
+        campoModificaTitolo.sendKeys(nuovoTitolo);
+
+        WebElement campoModificaDesc = driver.findElement(By.id("modifica-desc"));
+        campoModificaDesc.clear();
+        campoModificaDesc.sendKeys(nuovaDescrizione);
+
+        WebElement campoModificaOfferta = driver.findElement(By.id("modifica-offerta"));
+        campoModificaOfferta.clear();
+        campoModificaOfferta.sendKeys("GWT");
+
+        WebElement campoModificaRichiesta = driver.findElement(By.id("modifica-richiesta"));
+        campoModificaRichiesta.clear();
+        campoModificaRichiesta.sendKeys("Spring Boot");
+
+        // 4. Clicca sul tasto Salva della modale
+        WebElement btnSalva = driver.findElement(By.id("modifica-submit"));
+        btnSalva.click();
+
+        // 5. Gestione dell'alert nativo "Annuncio modificato con successo!"
+        try {
+            wait.until(ExpectedConditions.alertIsPresent());
+            driver.switchTo().alert().accept();
+        } catch (Exception ignored) {}
+
+        // 6. Attendiamo che la vecchia card sparisca dal DOM
+        wait.until(ExpectedConditions.invisibilityOf(cardAnnuncio));
+
+        return this;
+    }
+
     public String testoMessaggio() {
         return messaggio.getText();
     }
