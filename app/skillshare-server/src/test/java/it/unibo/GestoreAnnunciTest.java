@@ -143,4 +143,90 @@ public class GestoreAnnunciTest {
             fail("Il test ha lanciato un'eccezione imprevista: " + e.getMessage());
         }
     }
+
+    @Test
+    @DisplayName("Test recupero annunci di uno specifico utente")
+    void testOttieniAnnunciUtente() {
+        try {
+            // Prepariamo due annunci di autori differenti
+            Annuncio annuncioMio = new Annuncio("id_mario_1", "Ripetizioni Matematica", "Offro aiuto", "Matematica", "Fisica", "mario_rossi");
+            Annuncio annuncioAltro = new Annuncio("id_altro_1", "Corso di Inglese", "Offro inglese", "Inglese", "Italiano", "luigi_verdi");
+            
+            gestore.pubblicaAnnuncio(annuncioMio);
+            gestore.pubblicaAnnuncio(annuncioAltro);
+
+            // Richiediamo solo gli annunci dell'utente "mario_rossi"
+            List<Annuncio> mieiAnnunci = gestore.ottieniAnnunciUtente("mario_rossi");
+
+            assertNotNull(mieiAnnunci, "La lista degli annunci dell'utente non deve essere null");
+            assertFalse(mieiAnnunci.isEmpty(), "La lista non deve essere vuota");
+            
+            // Verifichiamo che tutti gli annunci restituiti appartengano effettivamente a mario_rossi
+            for (Annuncio a : mieiAnnunci) {
+                assertEquals("mario_rossi", a.getAutoreUsername(), "L'autore deve corrispondere all'utente richiesto");
+            }
+        } catch (Exception e) {
+            fail("Il test ha lanciato un'eccezione imprevista: " + e.getMessage());
+        }
+    }
+
+    @Test
+    @DisplayName("Test modifica di un annuncio esistente")
+    void testModificaAnnuncio() {
+        try {
+            // Pubblichiamo l'annuncio iniziale
+            Annuncio annuncioDaModificare = new Annuncio("id_mod_01", "Titolo Vecchio", "Descrizione vecchia", "Offerta1", "Richiesta1", "utente_test");
+            gestore.pubblicaAnnuncio(annuncioDaModificare);
+
+            // Modifichiamo i campi dell'annuncio
+            annuncioDaModificare.setTitolo("Titolo Aggiornato");
+            annuncioDaModificare.setDescrizione("Descrizione aggiornata con successo");
+
+            // Eseguiamo la modifica sul server tramite RPC
+            boolean risultatoModifica = gestore.modificaAnnuncio(annuncioDaModificare);
+            assertTrue(risultatoModifica, "La modifica dell'annuncio deve andare a buon fine");
+
+            // Verifichiamo che i dati siano stati effettivamente aggiornati nel database
+            List<Annuncio> tutti = gestore.ottieniTuttiGliAnnunci();
+            for (Annuncio a : tutti) {
+                if (a.getId().equals("id_mod_01")) {
+                    assertEquals("Titolo Aggiornato", a.getTitolo());
+                    assertEquals("Descrizione aggiornata con successo", a.getDescrizione());
+                    break;
+                }
+            }
+        } catch (Exception e) {
+            fail("Il test ha lanciato un'eccezione imprevista: " + e.getMessage());
+        }
+    }
+
+    @Test
+    @DisplayName("Test eliminazione di un annuncio")
+    void testEliminaAnnuncio() {
+        try {
+            // Pubblichiamo un annuncio da eliminare
+            Annuncio annuncioDaEliminare = new Annuncio("id_del_01", "Da Cancellare", "Test eliminazione", "Offerta", "Richiesta", "utente_test");
+            gestore.pubblicaAnnuncio(annuncioDaEliminare);
+
+            // Verifichiamo che esista prima di eliminarlo
+            assertFalse(gestore.ottieniTuttiGliAnnunci().isEmpty());
+
+            // Eseguiamo l'eliminazione passandogli l'id dell'annuncio
+            boolean risultatoEliminazione = gestore.eliminaAnnuncio("id_del_01", "utente_test");
+            assertTrue(risultatoEliminazione, "L'eliminazione dell'annuncio deve restituire true");
+
+            // Verifichiamo che l'annuncio non sia più presente nel sistema
+            List<Annuncio> listaAggiornata = gestore.ottieniTuttiGliAnnunci();
+            boolean ancoraPresente = false;
+            for (Annuncio a : listaAggiornata) {
+                if (a.getId().equals("id_del_01")) {
+                    ancoraPresente = true;
+                    break;
+                }
+            }
+            assertFalse(ancoraPresente, "L'annuncio eliminato non deve più trovarsi nel database");
+        } catch (Exception e) {
+            fail("Il test ha lanciato un'eccezione imprevista: " + e.getMessage());
+        }
+    }
 }
