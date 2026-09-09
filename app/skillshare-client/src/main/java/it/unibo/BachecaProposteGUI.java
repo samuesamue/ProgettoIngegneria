@@ -1,12 +1,15 @@
 package it.unibo;
 
 import com.google.gwt.core.client.GWT;
+import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.*;
 import java.util.List;
 
 public class BachecaProposteGUI {
     private final GestoreAnnunciAsync rpcService = GWT.create(GestoreAnnunci.class);
+
+    private final GestoreRichiesteServiceAsync richiesteService = GWT.create(GestoreRichiesteService.class);
 
     public void mostra(Utente utenteLoggato) {
         VerticalPanel pannelloPrincipale = new VerticalPanel();
@@ -43,7 +46,7 @@ public class BachecaProposteGUI {
                 // Caso B: Database popolato, mostriamo gli annunci
                 FlexTable tabellaAnnunci = new FlexTable();
                 tabellaAnnunci.getElement().setId("tabella-proposte");
-                tabellaAnnunci.setWidth("800px");
+                tabellaAnnunci.setWidth("900px");
                 tabellaAnnunci.setCellPadding(10);
                 tabellaAnnunci.setCellSpacing(0); // Rimuove lo spazio tra le celle
                 tabellaAnnunci.getElement().getStyle().setProperty("borderCollapse", "collapse");
@@ -55,6 +58,7 @@ public class BachecaProposteGUI {
                 tabellaAnnunci.setHTML(0, 2, "<b>Descrizione</b>");
                 tabellaAnnunci.setHTML(0, 3, "<b>Competenza Offerta</b>");
                 tabellaAnnunci.setHTML(0, 4, "<b>Competenza Richiesta</b>");
+                tabellaAnnunci.setHTML(0,5, "<b>Azione</b>");
 
                 // Stile per l'intestazione della tabella
                 tabellaAnnunci.getRowFormatter().getElement(0).getStyle().setProperty("backgroundColor","#006464");
@@ -69,6 +73,38 @@ public class BachecaProposteGUI {
                     tabellaAnnunci.setText(riga, 2, annuncio.getDescrizione());
                     tabellaAnnunci.setText(riga, 3, annuncio.getCompetenzaOfferta());
                     tabellaAnnunci.setText(riga, 4, annuncio.getCompetenzaRichiesta());
+
+                    Button btnRichiediScambio = new Button("Richiedi Scambio");
+
+                    // Disabilita il pulsante se l'utente loggato è l'autore dell'annuncio
+                    if (annuncio.getAutoreUsername().equals(utenteLoggato.getUsername())) {
+                        btnRichiediScambio.setEnabled(false);
+                        btnRichiediScambio.setTitle("Non puoi richiedere uno scambio con il tuo annuncio.");
+                    }
+
+                    btnRichiediScambio.addClickHandler(event ->{
+                        // Creazione della richiesta di scambio
+                        RichiestaScambio richiesta = new RichiestaScambio("",annuncio.getId(), utenteLoggato.getUsername(), annuncio.getAutoreUsername());
+
+                        richiesteService.inviaRichiesta(richiesta, new AsyncCallback<Boolean>() {
+                            @Override
+                            public void onFailure(Throwable caught) {
+                                Window.alert("Errore di rete: " + caught.getMessage());
+                            }
+
+                            @Override
+                            public void onSuccess(Boolean successo) {
+                                if (successo) {
+                                    Window.alert("Richiesta di scambio inviata con successo a " + annuncio.getAutoreUsername() + " per l'annuncio '" + annuncio.getTitolo() + "'.");
+                                } else {
+                                    Window.alert("Errore: impossibile inviare la richiesta. Azione bloccata dal server.");
+                                }
+                            }
+                        });
+                    });
+
+                    // Aggiunta del pulsante alla tabella
+                    tabellaAnnunci.setWidget(riga, 5, btnRichiediScambio);
 
                     // Stile per le celle della tabella
                     tabellaAnnunci.getRowFormatter().getElement(riga).getStyle().setProperty("textAlign","center");
