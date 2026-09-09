@@ -59,4 +59,14 @@
     <servlet-name>gestoreProfiloServlet</servlet-name>
     <url-pattern>/app/profilo</url-pattern> 
   </servlet-mapping>
+
+  <!-- Servlet per le richieste di scambio -->
+  <servlet>
+    <servlet-name>gestoreRichiesteServlet</servlet-name>
+    <servlet-class>it.unibo.GestoreRichiesteServiceImpl</servlet-class>
+  </servlet>
+  <servlet-mapping>
+    <servlet-name>gestoreRichiesteServlet</servlet-name>
+    <url-pattern>/app/richieste</url-pattern>
+  </servlet-mapping>
 </web-app>
