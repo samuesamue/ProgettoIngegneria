@@ -38,18 +38,6 @@ public class GestoreRichiesteServiceImpl extends RemoteServiceServlet implements
             
             // Salvare fisicamente le modifiche sul file del database
             DatabaseCore.commit();
-
-            // Trucco di DEBUG: stampiamo a console tutte le richieste salvate nel database
-            System.out.println("\n----------------- IL SERVER HA AGGIORNATO IL DATABASE ------------------");
-            System.out.println("Numero totale di richieste salvate: " + mappaRichieste.size());
-            
-            for (RichiestaScambio r : mappaRichieste.values()) {
-                System.out.println("👤 ID: " + r.getIdRichiesta() 
-                        + " | Mittente: " + r.getRichiedente() 
-                        + " | Destinatario: " + r.getRicevente() 
-                        + " | Stato: " + r.getStato());
-            }
-            System.out.println("------------------------------------------------------------------------\n");
             
             return true;
 
