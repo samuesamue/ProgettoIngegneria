@@ -95,15 +95,16 @@ public class MieiAnnunciPanel extends Composite {
         HorizontalPanel btnPanel = new HorizontalPanel();
         btnPanel.setSpacing(5);
 
-        // Bottone Modifica
+        // Bottone Modifica con ID univoco basato sull'ID dell'annuncio
         Button btnModifica = new Button("Modifica", new ClickHandler() {
             @Override
             public void onClick(ClickEvent event) {
                 mostraDialogoModifica(annuncio);
             }
         });
+        btnModifica.getElement().setId("btn-modifica-" + annuncio.getId());
 
-        // Pulsante Elimina
+        // Pulsante Elimina con ID univoco basato sull'ID dell'annuncio
         Button btnElimina = new Button("Elimina");
         btnElimina.addClickHandler(new ClickHandler() {
             @Override
@@ -112,6 +113,7 @@ public class MieiAnnunciPanel extends Composite {
                 mostraDialogoConfermaEliminazione(annuncio.getId());
             }
         });
+        btnElimina.getElement().setId("btn-elimina-" + annuncio.getId());
 
         btnPanel.add(btnModifica);
         btnPanel.add(btnElimina);
@@ -144,6 +146,8 @@ public class MieiAnnunciPanel extends Composite {
                 eseguiEliminazioneServer(idAnnuncio);
             }
         });
+        // Assegniamo un ID chiaro al bottone "Sì" della modale di conferma
+        btnSi.getElement().setId("btn-conferma-elimina-si");
 
         // Bottone No: chiude semplicemente il popup senza fare nulla
         Button btnNo = new Button("No", new ClickHandler() {
@@ -252,6 +256,13 @@ public class MieiAnnunciPanel extends Composite {
         btnPanel.add(btnSalva);
         btnPanel.add(btnAnnulla);
         panel.add(btnPanel);
+
+        // Assegniamo gli ID ai campi del popup per renderli facilmente testabili con Selenium
+        txtTitolo.getElement().setId("modifica-titolo");
+        txtDescrizione.getElement().setId("modifica-desc");
+        txtOfferta.getElement().setId("modifica-offerta");
+        txtRichiesta.getElement().setId("modifica-richiesta");
+        btnSalva.getElement().setId("modifica-submit");
 
         // Impostiamo il pannello come contenuto del DialogBox e lo centriamo a schermo
         dialogBox.setWidget(panel);

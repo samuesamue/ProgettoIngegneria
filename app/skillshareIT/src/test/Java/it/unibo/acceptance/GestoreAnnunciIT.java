@@ -116,4 +116,42 @@ class GestoreAnnunciIT {
             assertEquals("", pagina.campoTitolo().getAttribute("value"));
         }
     }
+
+    @Nested
+    @DisplayName("Gestione degli Annunci (Modifica ed Eliminazione)")
+    class GestioneAnnunci {
+
+        @Test
+        @DisplayName("un annuncio pubblicato può essere eliminato correttamente")
+        void annuncioPubblicato_puoiEliminarlo() {
+            String titoloTest = "Annuncio da Eliminare " + System.currentTimeMillis();
+            pagina.compila(titoloTest, "Descrizione per eliminazione", "Java", "Python");
+            pagina.pubblica();
+
+            assertTrue(pagina.testoMessaggio().toLowerCase().contains("successo"));
+            assertTrue(pagina.isAnnuncioPresente(titoloTest), "L'annuncio deve essere visibile in lista.");
+
+            pagina.eliminaAnnuncio(titoloTest);
+
+            assertFalse(pagina.isAnnuncioPresente(titoloTest), "L'annuncio eliminato non deve più comparire.");
+        }
+
+        @Test
+        @DisplayName("un annuncio pubblicato può essere modificato correttamente")
+        void annuncioPubblicato_puoiModificarlo() {
+            String titoloVecchio = "Annuncio Vecchio " + System.currentTimeMillis();
+            String titoloNuovo = "Annuncio Modificato " + System.currentTimeMillis();
+
+            pagina.compila(titoloVecchio, "Descrizione vecchia", "GWT", "Spring Boot");
+            pagina.pubblica();
+
+            assertTrue(pagina.testoMessaggio().toLowerCase().contains("successo"));
+            assertTrue(pagina.isAnnuncioPresente(titoloVecchio));
+
+            pagina.modificaAnnuncio(titoloVecchio, titoloNuovo, "Descrizione nuova e aggiornata");
+
+            assertFalse(pagina.isAnnuncioPresente(titoloVecchio), "Il vecchio titolo non deve più essere visibile.");
+            assertTrue(pagina.isAnnuncioPresente(titoloNuovo), "Il nuovo titolo modificato deve comparire in lista.");
+        }
+    }
 }
