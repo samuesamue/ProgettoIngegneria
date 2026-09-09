@@ -190,6 +190,27 @@ public class PubblicaAnnunciGui {
         });
         panel.add(btnBacheca);
 
+        // AGGIUNTA NUOVO PULSANTE: "I Miei Annunci"
+        // Crea un tasto dedicato per aprire la schermata di gestione 
+        // (visualizzazione, modifica ed eliminazione) dei post personali.
+        Button btnMieiAnnunci = new Button("I Miei Annunci");
+        btnMieiAnnunci.getElement().setId("btn-miei-annunci");
+
+        btnMieiAnnunci.addClickHandler(event -> {
+            // Apriamo il tuo pannello passando l'username dell'utente loggato
+            MieiAnnunciPanel mieiAnnunciPanel = new MieiAnnunciPanel(utenteLoggato.getUsername(), () -> {
+                // Azione di ritorno: ricarica la bacheca attuale
+                new PubblicaAnnunciGui().mostra(utenteLoggato);
+            });
+
+            // Puliamo la schermata corrente e carichiamo la vista "I Miei Annunci"
+            RootPanel.get().clear();
+            RootPanel.get().add(mieiAnnunciPanel);
+        });
+
+        // Aggiungiamo il nuovo pulsante al pannello principale della schermata
+        panel.add(btnMieiAnnunci);
+
         //Pulizia e stampa finale
         RootPanel.get().clear();
         RootPanel.get().add(panel);
