@@ -8,7 +8,6 @@ import java.util.List;
 
 public class BachecaProposteGUI {
     private final GestoreAnnunciAsync rpcService = GWT.create(GestoreAnnunci.class);
-
     private final GestoreRichiesteServiceAsync richiesteService = GWT.create(GestoreRichiesteService.class);
 
     public void mostra(Utente utenteLoggato) {
@@ -23,6 +22,11 @@ public class BachecaProposteGUI {
         VerticalPanel pannelloAnnunci = new VerticalPanel();
         pannelloPrincipale.add(pannelloAnnunci);
 
+        Button btnFiltri = new Button("🔍 Filtri Avanzati");
+        btnFiltri.getElement().getStyle().setProperty("marginBottom", "10px");
+        btnFiltri.addClickHandler(event -> mostraPopupFiltriAvanzati(pannelloAnnunci, utenteLoggato, lblStato));
+        pannelloPrincipale.add(btnFiltri);
+
         rpcService.ottieniTuttiGliAnnunci(new AsyncCallback<List<Annuncio>>() {
             
             @Override 
@@ -34,91 +38,7 @@ public class BachecaProposteGUI {
             @Override 
             public void onSuccess(List<Annuncio> listaProposte) {
                 lblStato.setText("");
-
-                // Caso A: Database vuoto, nessun annuncio presente
-                if (listaProposte == null || listaProposte.isEmpty()){
-                    Label lblVuoto = new Label("Non ci sono proposte disponibili al momento.");
-                    lblVuoto.getElement().setId("msg-nessuna-proposta");
-                    pannelloAnnunci.add(lblVuoto);
-                    return;
-                }
-
-                // Caso B: Database popolato, mostriamo gli annunci
-                FlexTable tabellaAnnunci = new FlexTable();
-                tabellaAnnunci.getElement().setId("tabella-proposte");
-                tabellaAnnunci.setWidth("900px");
-                tabellaAnnunci.setCellPadding(10);
-                tabellaAnnunci.setCellSpacing(0); // Rimuove lo spazio tra le celle
-                tabellaAnnunci.getElement().getStyle().setProperty("borderCollapse", "collapse");
-                tabellaAnnunci.getElement().getStyle().setProperty("fontFamily", "sans-serif");
-
-                // Intestazioni della tabella
-                tabellaAnnunci.setHTML(0, 0, "<b>Titolo</b>");
-                tabellaAnnunci.setHTML(0, 1, "<b>Autore</b>");
-                tabellaAnnunci.setHTML(0, 2, "<b>Descrizione</b>");
-                tabellaAnnunci.setHTML(0, 3, "<b>Competenza Offerta</b>");
-                tabellaAnnunci.setHTML(0, 4, "<b>Competenza Richiesta</b>");
-                tabellaAnnunci.setHTML(0,5, "<b>Azione</b>");
-
-                // Stile per l'intestazione della tabella
-                tabellaAnnunci.getRowFormatter().getElement(0).getStyle().setProperty("backgroundColor","#006464");
-                tabellaAnnunci.getRowFormatter().getElement(0).getStyle().setProperty("color","white");
-                tabellaAnnunci.getRowFormatter().getElement(0).getStyle().setProperty("textAlign","center");
-                tabellaAnnunci.getRowFormatter().getElement(0).getStyle().setProperty("textTransform","uppercase");
-
-                int riga = 1;
-                for (Annuncio annuncio : listaProposte) {
-                    tabellaAnnunci.setText(riga, 0, annuncio.getTitolo());
-                    tabellaAnnunci.setText(riga, 1, annuncio.getAutoreUsername());
-                    tabellaAnnunci.setText(riga, 2, annuncio.getDescrizione());
-                    tabellaAnnunci.setText(riga, 3, annuncio.getCompetenzaOfferta());
-                    tabellaAnnunci.setText(riga, 4, annuncio.getCompetenzaRichiesta());
-
-                    Button btnRichiediScambio = new Button("Richiedi Scambio");
-
-                    // Disabilita il pulsante se l'utente loggato è l'autore dell'annuncio
-                    if (annuncio.getAutoreUsername().equals(utenteLoggato.getUsername())) {
-                        btnRichiediScambio.setEnabled(false);
-                        btnRichiediScambio.setTitle("Non puoi richiedere uno scambio con il tuo annuncio.");
-                    }
-
-                    btnRichiediScambio.addClickHandler(event ->{
-                        // Creazione della richiesta di scambio
-                        RichiestaScambio richiesta = new RichiestaScambio("",annuncio.getId(), utenteLoggato.getUsername(), annuncio.getAutoreUsername());
-
-                        richiesteService.inviaRichiesta(richiesta, new AsyncCallback<Boolean>() {
-                            @Override
-                            public void onFailure(Throwable caught) {
-                                Window.alert("Errore di rete: " + caught.getMessage());
-                            }
-
-                            @Override
-                            public void onSuccess(Boolean successo) {
-                                if (successo) {
-                                    Window.alert("Richiesta di scambio inviata con successo a " + annuncio.getAutoreUsername() + " per l'annuncio '" + annuncio.getTitolo() + "'.");
-                                } else {
-                                    Window.alert("Errore: impossibile inviare la richiesta. Azione bloccata dal server.");
-                                }
-                            }
-                        });
-                    });
-
-                    // Aggiunta del pulsante alla tabella
-                    tabellaAnnunci.setWidget(riga, 5, btnRichiediScambio);
-
-                    // Stile per le celle della tabella
-                    tabellaAnnunci.getRowFormatter().getElement(riga).getStyle().setProperty("textAlign","center");
-
-                    // Separazione tra le righe e alternanza dei colori
-                    tabellaAnnunci.getRowFormatter().getElement(riga).getStyle().setProperty("borderBottom", "1px solid #dddddd");
-
-                    if (riga % 2 == 0){
-                        tabellaAnnunci.getRowFormatter().getElement(riga).getStyle().setProperty("backgroundColor", "#f9f9f9");
-                    }
-
-                    riga++;
-                }
-                    pannelloAnnunci.add(tabellaAnnunci);
+                popolaTabella(listaProposte, pannelloAnnunci, utenteLoggato);
             }
         });
 
@@ -133,4 +53,175 @@ public class BachecaProposteGUI {
         RootPanel.get().clear();
         RootPanel.get().add(pannelloPrincipale);
     }
+
+    // Pannello popup con i campi di ricerca avanzata.
+    private void mostraPopupFiltriAvanzati(VerticalPanel pannelloAnnunci, Utente utenteLoggato, Label lblStato) {
+        final PopupPanel pannelloFiltri = new PopupPanel(true);
+        pannelloFiltri.setGlassEnabled(true); // Velo scuro per coprire il resto del sito
+
+        pannelloFiltri.getElement().getStyle().setBackgroundColor("#ffffff");
+        pannelloFiltri.getElement().getStyle().setZIndex(9999);
+        pannelloFiltri.getElement().getStyle().setProperty("border", "3px solid #006464");
+        pannelloFiltri.getElement().getStyle().setProperty("padding", "15px");
+        pannelloFiltri.getElement().getStyle().setProperty("borderRadius", "8px");
+
+        VerticalPanel layoutFiltri = new VerticalPanel();
+        layoutFiltri.setSpacing(10);
+        layoutFiltri.getElement().getStyle().setBackgroundColor("#ffffff"); // Sicurezza extra
+        
+        layoutFiltri.add(new HTML("<h3 style='margin-top: 0; color: #006464;'>🔍 Ricerca Avanzata</h3>"));
+        
+        final TextBox txtOfferta = new TextBox();
+        txtOfferta.getElement().setPropertyString("placeholder", "Competenza offerta");
+        
+        final TextBox txtRichiesta = new TextBox();
+        txtRichiesta.getElement().setPropertyString("placeholder", "Competenza richiesta");
+        
+        final TextBox txtKeyword = new TextBox();
+        txtKeyword.getElement().setPropertyString("placeholder", "Parola chiave");
+        
+        final ListBox listOrdinamento = new ListBox();
+        listOrdinamento.addItem("Nessun ordinamento", "");
+        listOrdinamento.addItem("Alfabetico per Titolo", "titolo");
+        
+        layoutFiltri.add(new Label("Competenza Offerta:"));
+        layoutFiltri.add(txtOfferta);
+        layoutFiltri.add(new Label("Competenza Richiesta:"));
+        layoutFiltri.add(txtRichiesta);
+        layoutFiltri.add(new Label("Parola chiave:"));
+        layoutFiltri.add(txtKeyword);
+        layoutFiltri.add(new Label("Ordinamento:"));
+        layoutFiltri.add(listOrdinamento);
+        
+        HorizontalPanel panelBottoni = new HorizontalPanel();
+        panelBottoni.setSpacing(5);
+        
+        Button btnEseguiRicerca = new Button("Cerca");
+        Button btnAnnulla = new Button("Annulla");
+        
+        panelBottoni.add(btnEseguiRicerca);
+        panelBottoni.add(btnAnnulla);
+        layoutFiltri.add(panelBottoni);
+        
+        pannelloFiltri.setWidget(layoutFiltri);
+        
+        btnEseguiRicerca.addClickHandler(event -> {
+            String offerta = txtOfferta.getValue();
+            String richiesta = txtRichiesta.getValue();
+            String keyword = txtKeyword.getValue();
+            String ordinamento = listOrdinamento.getSelectedValue();
+            
+            lblStato.setText("Ricerca in corso...");
+            
+            // Chiama il metodo RPC di ricerca avanzata
+            rpcService.cercaAnnunci(offerta, richiesta, keyword, ordinamento, new AsyncCallback<List<Annuncio>>() {
+                @Override
+                public void onFailure(Throwable caught) {
+                    Window.alert("Errore durante la ricerca: " + caught.getMessage());
+                }
+
+                @Override
+                public void onSuccess(List<Annuncio> risultati) {
+                    pannelloFiltri.hide();
+                    lblStato.setText("");
+                    // Ridegna la tabella con i risultati filtrati
+                    popolaTabella(risultati, pannelloAnnunci, utenteLoggato);
+                }
+            });
+        });
+        
+        btnAnnulla.addClickHandler(event -> pannelloFiltri.hide());
+        
+        pannelloFiltri.center();
+        pannelloFiltri.show();
+    }
+
+    private void popolaTabella(List<Annuncio> listaProposte, VerticalPanel pannelloAnnunci, Utente utenteLoggato) {
+        pannelloAnnunci.clear();
+            
+        // Caso A: Database vuoto, nessun annuncio presente
+        if (listaProposte == null || listaProposte.isEmpty()){
+            Label lblVuoto = new Label("Non ci sono proposte disponibili al momento.");
+            lblVuoto.getElement().setId("msg-nessuna-proposta");
+            pannelloAnnunci.add(lblVuoto);
+            return;
+        }
+
+        // Caso B: Database popolato, mostriamo gli annunci
+        FlexTable tabellaAnnunci = new FlexTable();
+        tabellaAnnunci.getElement().setId("tabella-proposte");
+        tabellaAnnunci.setWidth("900px");
+        tabellaAnnunci.setCellPadding(10);
+        tabellaAnnunci.setCellSpacing(0); // Rimuove lo spazio tra le celle
+        tabellaAnnunci.getElement().getStyle().setProperty("borderCollapse", "collapse");
+        tabellaAnnunci.getElement().getStyle().setProperty("fontFamily", "sans-serif");
+
+        // Intestazioni della tabella
+        tabellaAnnunci.setHTML(0, 0, "<b>Titolo</b>");
+        tabellaAnnunci.setHTML(0, 1, "<b>Autore</b>");
+        tabellaAnnunci.setHTML(0, 2, "<b>Descrizione</b>");
+        tabellaAnnunci.setHTML(0, 3, "<b>Competenza Offerta</b>");
+        tabellaAnnunci.setHTML(0, 4, "<b>Competenza Richiesta</b>");
+        tabellaAnnunci.setHTML(0,5, "<b>Azione</b>");
+
+        // Stile per l'intestazione della tabella
+        tabellaAnnunci.getRowFormatter().getElement(0).getStyle().setProperty("backgroundColor","#006464");
+        tabellaAnnunci.getRowFormatter().getElement(0).getStyle().setProperty("color","white");
+        tabellaAnnunci.getRowFormatter().getElement(0).getStyle().setProperty("textAlign","center");
+        tabellaAnnunci.getRowFormatter().getElement(0).getStyle().setProperty("textTransform","uppercase");
+
+        int riga = 1;
+        for (Annuncio annuncio : listaProposte) {
+            tabellaAnnunci.setText(riga, 0, annuncio.getTitolo());
+            tabellaAnnunci.setText(riga, 1, annuncio.getAutoreUsername());
+            tabellaAnnunci.setText(riga, 2, annuncio.getDescrizione());
+            tabellaAnnunci.setText(riga, 3, annuncio.getCompetenzaOfferta());
+            tabellaAnnunci.setText(riga, 4, annuncio.getCompetenzaRichiesta());
+
+            Button btnRichiediScambio = new Button("Richiedi Scambio");
+
+            // Disabilita il pulsante se l'utente loggato è l'autore dell'annuncio
+            if (annuncio.getAutoreUsername().equals(utenteLoggato.getUsername())) {
+                btnRichiediScambio.setEnabled(false);
+                btnRichiediScambio.setTitle("Non puoi richiedere uno scambio con il tuo annuncio.");
+            }
+
+            btnRichiediScambio.addClickHandler(event ->{
+                // Creazione della richiesta di scambio
+                RichiestaScambio richiesta = new RichiestaScambio("",annuncio.getId(), utenteLoggato.getUsername(), annuncio.getAutoreUsername());
+
+                richiesteService.inviaRichiesta(richiesta, new AsyncCallback<Boolean>() {
+                    @Override
+                    public void onFailure(Throwable caught) {
+                        Window.alert("Errore di rete: " + caught.getMessage());
+                    }
+
+                    @Override
+                    public void onSuccess(Boolean successo) {
+                        if (successo) {
+                            Window.alert("Richiesta di scambio inviata con successo a " + annuncio.getAutoreUsername() + " per l'annuncio '" + annuncio.getTitolo() + "'.");
+                        } else {
+                            Window.alert("Errore: impossibile inviare la richiesta. Azione bloccata dal server.");
+                        }
+                    }
+                });
+            });
+
+            // Aggiunta del pulsante alla tabella
+            tabellaAnnunci.setWidget(riga, 5, btnRichiediScambio);
+
+            // Stile per le celle della tabella
+            tabellaAnnunci.getRowFormatter().getElement(riga).getStyle().setProperty("textAlign","center");
+
+            // Separazione tra le righe e alternanza dei colori
+            tabellaAnnunci.getRowFormatter().getElement(riga).getStyle().setProperty("borderBottom", "1px solid #dddddd");
+
+            if (riga % 2 == 0){
+                tabellaAnnunci.getRowFormatter().getElement(riga).getStyle().setProperty("backgroundColor", "#f9f9f9");
+            }
+
+            riga++;
+            }
+            pannelloAnnunci.add(tabellaAnnunci);
+        }
 }
