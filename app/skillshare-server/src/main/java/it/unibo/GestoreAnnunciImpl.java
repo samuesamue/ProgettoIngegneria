@@ -146,4 +146,49 @@ public class GestoreAnnunciImpl extends RemoteServiceServlet implements GestoreA
             return false;
         }
     }
+
+    @Override
+    public List<Annuncio> cercaAnnunci(String competenzaOfferta, String competenzaRichiesta, String keyword, String ordinamento) throws Exception {
+        List<Annuncio> tuttiGliAnnunci = ottieniTuttiGliAnnunci();
+        List<Annuncio> risultatiFiltrati = new ArrayList<>();
+
+        for (Annuncio annuncio : tuttiGliAnnunci) {
+            // Controllo filtro competenza offerta (se specificato)
+            boolean matchOfferta = (competenzaOfferta == null || competenzaOfferta.trim().isEmpty() || 
+                (annuncio.getCompetenzaOfferta() != null && 
+                 annuncio.getCompetenzaOfferta().toLowerCase().contains(competenzaOfferta.toLowerCase().trim())));
+
+            // Controllo filtro competenza richiesta (se specificato)
+            boolean matchRichiesta = (competenzaRichiesta == null || competenzaRichiesta.trim().isEmpty() || 
+                (annuncio.getCompetenzaRichiesta() != null && 
+                 annuncio.getCompetenzaRichiesta().toLowerCase().contains(competenzaRichiesta.toLowerCase().trim())));
+
+            // Filtro per Testo Libero (cerca nel titolo o nella descrizione)
+            boolean matchKeyword = (keyword == null || keyword.trim().isEmpty() || 
+                (annuncio.getTitolo() != null && annuncio.getTitolo().toLowerCase().contains(keyword.toLowerCase().trim())) ||
+                (annuncio.getDescrizione() != null && annuncio.getDescrizione().toLowerCase().contains(keyword.toLowerCase().trim())));
+
+            // Se entrambi i filtri rispecchiano i criteri, l'annuncio viene incluso nei risultati
+            if (matchOfferta && matchRichiesta && matchKeyword) {
+                risultatiFiltrati.add(annuncio);
+            }
+        }
+
+        // Gestione dell'ordinamento (Sorting)
+        if (ordinamento != null) {
+            switch (ordinamento.toLowerCase()) {
+                case "titolo":
+                    risultatiFiltrati.sort((a1, a2) -> {
+                        String t1 = a1.getTitolo() != null ? a1.getTitolo() : "";
+                        String t2 = a2.getTitolo() != null ? a2.getTitolo() : "";
+                        return t1.compareToIgnoreCase(t2);
+                    });
+                    break;
+                default:
+                    break;
+            }
+        }
+
+        return risultatiFiltrati;
+    }
 }

@@ -18,4 +18,6 @@ public interface GestoreAnnunci extends RemoteService {
     Boolean modificaAnnuncio(Annuncio annuncio) throws Exception;
     
     Boolean eliminaAnnuncio(String id, String username) throws Exception;
+
+    List<Annuncio> cercaAnnunci(String competenzaOfferta, String competenzaRichiesta, String keyword, String ordinamento) throws Exception;
 }

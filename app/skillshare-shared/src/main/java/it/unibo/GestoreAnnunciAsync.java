@@ -14,4 +14,6 @@ public interface GestoreAnnunciAsync {
     void modificaAnnuncio(Annuncio annuncio, AsyncCallback<Boolean> callback);
     
     void eliminaAnnuncio(String id, String username, AsyncCallback<Boolean> callback);
+
+    void cercaAnnunci(String competenzaOfferta, String competenzaRichiesta, String keyword, String ordinamento, AsyncCallback<List<Annuncio>> callback);
 }
