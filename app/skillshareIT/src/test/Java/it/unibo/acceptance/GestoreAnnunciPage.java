@@ -150,6 +150,30 @@ public class GestoreAnnunciPage {
 
         return this;
     }
+    
+    public void apriFiltriAvanzati() {
+        driver.findElement(By.xpath("//button[contains(., 'Filtri Avanzati')]")).click();
+    }
+
+    public void compilaFiltri(String competenzaOfferta, String competenzaRichiesta, String parolaChiave) {
+        WebElement txtOfferta = driver.findElement(By.xpath("//input[@placeholder='Competenza offerta']"));
+        WebElement txtRichiesta = driver.findElement(By.xpath("//input[@placeholder='Competenza richiesta']"));
+        WebElement txtParola = driver.findElement(By.xpath("//input[@placeholder='Parola chiave']"));
+
+        txtOfferta.clear();
+        txtOfferta.sendKeys(competenzaOfferta);
+        
+        txtRichiesta.clear();
+        txtRichiesta.sendKeys(competenzaRichiesta);
+        
+        txtParola.clear();
+        txtParola.sendKeys(parolaChiave);
+    }
+
+    public void cliccaCercaAvanzata() {
+        WebElement btnCerca = wait.until(ExpectedConditions.elementToBeClickable(By.xpath("//button[text()='Cerca']")));
+        btnCerca.click();    
+    }
 
     public String testoMessaggio() {
         return messaggio.getText();
