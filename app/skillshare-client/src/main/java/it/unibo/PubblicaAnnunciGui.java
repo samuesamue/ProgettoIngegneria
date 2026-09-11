@@ -30,9 +30,91 @@ public class PubblicaAnnunciGui {
         lbl.setText(testo);
     }
 
+    // ==================== NAVBAR SUPERIORE FISSA ====================
+    private HorizontalPanel creaNavbar(Utente utenteLoggato) {
+        HorizontalPanel navbar = new HorizontalPanel();
+        navbar.setWidth("100%");
+        navbar.setSpacing(10);
+        navbar.setVerticalAlignment(HasVerticalAlignment.ALIGN_MIDDLE);        
+        navbar.getElement().getStyle().setProperty("backgroundColor", "#1b263b");
+        navbar.getElement().getStyle().setProperty("padding", "10px 20px");
+        navbar.getElement().getStyle().setProperty("boxShadow", "0 2px 4px rgba(0,0,0,0.1)");
+
+        // Logo / Nome a sinistra
+        Label lblLogo = new Label("SkillShare");
+        lblLogo.getElement().getStyle().setProperty("color", "#ffffff");
+        lblLogo.getElement().getStyle().setProperty("fontSize", "20px");
+        lblLogo.getElement().getStyle().setProperty("fontWeight", "bold");
+        lblLogo.getElement().getStyle().setProperty("cursor", "pointer");
+        lblLogo.addClickHandler(event -> new PubblicaAnnunciGui().mostra(utenteLoggato));
+        
+        navbar.add(lblLogo);
+        navbar.setCellWidth(lblLogo, "30%");
+
+        // Pannello pulsanti a destra
+        HorizontalPanel menuPanel = new HorizontalPanel();
+        menuPanel.setSpacing(15);
+        menuPanel.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_RIGHT);
+        menuPanel.setVerticalAlignment(HasVerticalAlignment.ALIGN_MIDDLE);
+
+        // 1. Pulsante Bacheca / Home loggato
+        Button btnBacheca = creaPannelloStileLink("📢 Bacheca");
+        btnBacheca.addClickHandler(event -> new PubblicaAnnunciGui().mostra(utenteLoggato));
+
+        // 2. Pulsante Cerca / Proposte
+        Button btnProposte = creaPannelloStileLink("🔍 Cerca / Scambi");
+        btnProposte.addClickHandler(event -> new BachecaProposteGUI().mostra(utenteLoggato));
+
+        // 3. Profilo utente
+        Button btnProfilo = creaPannelloStileLink("👤 Profilo");
+        btnProfilo.addClickHandler(event -> {
+            com.google.gwt.user.client.Window.alert("Utente loggato: " + utenteLoggato.getNome() + " " + utenteLoggato.getCognome() + " (" + utenteLoggato.getMail() + ")");
+        });
+
+        // 4. Tasto Logout (Torna alla landing page)
+        Button btnLogout = creaPannelloStileLink("↩️ Logout");
+        btnLogout.addClickHandler(event -> {
+            new HomePageGUI().mostra();
+        });
+
+        menuPanel.add(btnBacheca);
+        menuPanel.add(btnProposte);
+        menuPanel.add(btnProfilo);
+        menuPanel.add(btnLogout);
+
+        navbar.add(menuPanel);
+        navbar.setCellHorizontalAlignment(menuPanel, HasHorizontalAlignment.ALIGN_RIGHT);
+
+        return navbar;
+    }
+
+    private Button creaPannelloStileLink(String testo) {
+        Button btn = new Button(testo);
+        btn.getElement().getStyle().setProperty("backgroundColor", "#f0f2f5"); // Sfondo chiaro grigio-azzurro
+        btn.getElement().getStyle().setProperty("color", "#1b263b"); // Testo scuro ben leggibile
+        btn.getElement().getStyle().setProperty("border", "none");
+        btn.getElement().getStyle().setProperty("padding", "6px 12px");
+        btn.getElement().getStyle().setProperty("borderRadius", "4px");
+        btn.getElement().getStyle().setProperty("fontSize", "13px");
+        btn.getElement().getStyle().setProperty("fontWeight", "bold");
+        btn.getElement().getStyle().setProperty("cursor", "pointer");
+        return btn;
+    }
+
     public void mostra(Utente utenteLoggato) {
+        VerticalPanel mainContainer = new VerticalPanel();
+        mainContainer.setWidth("100%");
+        mainContainer.setSpacing(0);
+
+        // Aggiungiamo la Navbar in cima se l'utente è loggato
+        if (utenteLoggato != null) {
+            mainContainer.add(creaNavbar(utenteLoggato));
+        }
+
         VerticalPanel panel = new VerticalPanel();
         panel.setSpacing(10);
+        panel.setWidth("90%");
+        panel.getElement().getStyle().setProperty("margin", "20px auto");
 
         panel.add(new HTML("<h1 style=\"background-color:rgb(0,100,100);color:rgb(255,255,255);\"> <em>Bacheca Annunci</em></h1> <p>Condividi le tue competenze o cerca aiuto nella community!</p>"));
 
@@ -182,38 +264,11 @@ public class PubblicaAnnunciGui {
         panel.add(new Label("Annunci disponibili:"));
         panel.add(panelListaAnnunci);
 
-        Button btnBacheca = new Button("Visualizza proposte");
-        btnBacheca.getElement().setId("btn-bacheca-proposte");
-        btnBacheca.addClickHandler(event -> {
-            // Quando l'utente clicca sul pulsante, mostriamo la bacheca delle proposte
-            new BachecaProposteGUI().mostra(utenteLoggato);
-        });
-        panel.add(btnBacheca);
-
-        // AGGIUNTA NUOVO PULSANTE: "I Miei Annunci"
-        // Crea un tasto dedicato per aprire la schermata di gestione 
-        // (visualizzazione, modifica ed eliminazione) dei post personali.
-        Button btnMieiAnnunci = new Button("I Miei Annunci");
-        btnMieiAnnunci.getElement().setId("btn-miei-annunci");
-
-        btnMieiAnnunci.addClickHandler(event -> {
-            // Apriamo il tuo pannello passando l'username dell'utente loggato
-            MieiAnnunciPanel mieiAnnunciPanel = new MieiAnnunciPanel(utenteLoggato.getUsername(), () -> {
-                // Azione di ritorno: ricarica la bacheca attuale
-                new PubblicaAnnunciGui().mostra(utenteLoggato);
-            });
-
-            // Puliamo la schermata corrente e carichiamo la vista "I Miei Annunci"
-            RootPanel.get().clear();
-            RootPanel.get().add(mieiAnnunciPanel);
-        });
-
-        // Aggiungiamo il nuovo pulsante al pannello principale della schermata
-        panel.add(btnMieiAnnunci);
+        mainContainer.add(panel);
 
         //Pulizia e stampa finale
         RootPanel.get().clear();
-        RootPanel.get().add(panel);
+        RootPanel.get().add(mainContainer);
     }
 
     private void caricaAnnunci(VerticalPanel container) {

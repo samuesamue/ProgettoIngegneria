@@ -13,10 +13,12 @@ public class BachecaProposteGUI {
     public void mostra(Utente utenteLoggato) {
         VerticalPanel pannelloPrincipale = new VerticalPanel();
         pannelloPrincipale.setSpacing(15);
+        pannelloPrincipale.setWidth("90%");
+        pannelloPrincipale.getElement().getStyle().setProperty("margin", "20px auto");
 
         pannelloPrincipale.add(new HTML("<h2 style='color: #006464; border-bottom: 2px solid #006464; padding-bottom: 5px; font-family: sans-serif;'>Lista Proposte Disponibili</h2>"));
 
-        Label lblStato = new Label("Carimento delle proposte in corso...");
+        Label lblStato = new Label("Caricamento delle proposte in corso...");
         pannelloPrincipale.add(lblStato);
 
         VerticalPanel pannelloAnnunci = new VerticalPanel();
@@ -45,8 +47,7 @@ public class BachecaProposteGUI {
         Button btnIndietro = new Button("Indietro");
         btnIndietro.getElement().getStyle().setProperty("marginTop", "20px");
         btnIndietro.addClickHandler(event -> {
-            // Logica per tornare alla pagina precedente o alla home page
-            new PubblicaAnnunciGui().mostra(utenteLoggato); // Passa l'utente loggato
+            new PubblicaAnnunciGui().mostra(utenteLoggato);
         });
         pannelloPrincipale.add(btnIndietro);
 
@@ -54,10 +55,9 @@ public class BachecaProposteGUI {
         RootPanel.get().add(pannelloPrincipale);
     }
 
-    // Pannello popup con i campi di ricerca avanzata.
     private void mostraPopupFiltriAvanzati(VerticalPanel pannelloAnnunci, Utente utenteLoggato, Label lblStato) {
         final PopupPanel pannelloFiltri = new PopupPanel(true);
-        pannelloFiltri.setGlassEnabled(true); // Velo scuro per coprire il resto del sito
+        pannelloFiltri.setGlassEnabled(true); 
 
         pannelloFiltri.getElement().getStyle().setBackgroundColor("#ffffff");
         pannelloFiltri.getElement().getStyle().setZIndex(9999);
@@ -67,7 +67,7 @@ public class BachecaProposteGUI {
 
         VerticalPanel layoutFiltri = new VerticalPanel();
         layoutFiltri.setSpacing(10);
-        layoutFiltri.getElement().getStyle().setBackgroundColor("#ffffff"); // Sicurezza extra
+        layoutFiltri.getElement().getStyle().setBackgroundColor("#ffffff");
         
         layoutFiltri.add(new HTML("<h3 style='margin-top: 0; color: #006464;'>🔍 Ricerca Avanzata</h3>"));
         
@@ -113,7 +113,6 @@ public class BachecaProposteGUI {
             
             lblStato.setText("Ricerca in corso...");
             
-            // Chiama il metodo RPC di ricerca avanzata
             rpcService.cercaAnnunci(offerta, richiesta, keyword, ordinamento, new AsyncCallback<List<Annuncio>>() {
                 @Override
                 public void onFailure(Throwable caught) {
@@ -124,7 +123,6 @@ public class BachecaProposteGUI {
                 public void onSuccess(List<Annuncio> risultati) {
                     pannelloFiltri.hide();
                     lblStato.setText("");
-                    // Ridegna la tabella con i risultati filtrati
                     popolaTabella(risultati, pannelloAnnunci, utenteLoggato);
                 }
             });
@@ -139,7 +137,6 @@ public class BachecaProposteGUI {
     private void popolaTabella(List<Annuncio> listaProposte, VerticalPanel pannelloAnnunci, Utente utenteLoggato) {
         pannelloAnnunci.clear();
             
-        // Caso A: Database vuoto, nessun annuncio presente
         if (listaProposte == null || listaProposte.isEmpty()){
             Label lblVuoto = new Label("Non ci sono proposte disponibili al momento.");
             lblVuoto.getElement().setId("msg-nessuna-proposta");
@@ -147,16 +144,14 @@ public class BachecaProposteGUI {
             return;
         }
 
-        // Caso B: Database popolato, mostriamo gli annunci
         FlexTable tabellaAnnunci = new FlexTable();
         tabellaAnnunci.getElement().setId("tabella-proposte");
         tabellaAnnunci.setWidth("900px");
         tabellaAnnunci.setCellPadding(10);
-        tabellaAnnunci.setCellSpacing(0); // Rimuove lo spazio tra le celle
+        tabellaAnnunci.setCellSpacing(0);
         tabellaAnnunci.getElement().getStyle().setProperty("borderCollapse", "collapse");
         tabellaAnnunci.getElement().getStyle().setProperty("fontFamily", "sans-serif");
 
-        // Intestazioni della tabella
         tabellaAnnunci.setHTML(0, 0, "<b>Titolo</b>");
         tabellaAnnunci.setHTML(0, 1, "<b>Autore</b>");
         tabellaAnnunci.setHTML(0, 2, "<b>Descrizione</b>");
@@ -164,7 +159,6 @@ public class BachecaProposteGUI {
         tabellaAnnunci.setHTML(0, 4, "<b>Competenza Richiesta</b>");
         tabellaAnnunci.setHTML(0,5, "<b>Azione</b>");
 
-        // Stile per l'intestazione della tabella
         tabellaAnnunci.getRowFormatter().getElement(0).getStyle().setProperty("backgroundColor","#006464");
         tabellaAnnunci.getRowFormatter().getElement(0).getStyle().setProperty("color","white");
         tabellaAnnunci.getRowFormatter().getElement(0).getStyle().setProperty("textAlign","center");
@@ -180,14 +174,12 @@ public class BachecaProposteGUI {
 
             Button btnRichiediScambio = new Button("Richiedi Scambio");
 
-            // Disabilita il pulsante se l'utente loggato è l'autore dell'annuncio
             if (annuncio.getAutoreUsername().equals(utenteLoggato.getUsername())) {
                 btnRichiediScambio.setEnabled(false);
                 btnRichiediScambio.setTitle("Non puoi richiedere uno scambio con il tuo annuncio.");
             }
 
             btnRichiediScambio.addClickHandler(event ->{
-                // Creazione della richiesta di scambio
                 RichiestaScambio richiesta = new RichiestaScambio("",annuncio.getId(), utenteLoggato.getUsername(), annuncio.getAutoreUsername());
 
                 richiesteService.inviaRichiesta(richiesta, new AsyncCallback<Boolean>() {
@@ -207,13 +199,8 @@ public class BachecaProposteGUI {
                 });
             });
 
-            // Aggiunta del pulsante alla tabella
             tabellaAnnunci.setWidget(riga, 5, btnRichiediScambio);
-
-            // Stile per le celle della tabella
             tabellaAnnunci.getRowFormatter().getElement(riga).getStyle().setProperty("textAlign","center");
-
-            // Separazione tra le righe e alternanza dei colori
             tabellaAnnunci.getRowFormatter().getElement(riga).getStyle().setProperty("borderBottom", "1px solid #dddddd");
 
             if (riga % 2 == 0){
@@ -221,7 +208,7 @@ public class BachecaProposteGUI {
             }
 
             riga++;
-            }
-            pannelloAnnunci.add(tabellaAnnunci);
         }
+        pannelloAnnunci.add(tabellaAnnunci);
+    }
 }
