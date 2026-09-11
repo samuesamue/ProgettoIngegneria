@@ -30,15 +30,20 @@ public class PubblicaAnnunciGui {
         lbl.setText(testo);
     }
 
-    // ==================== NAVBAR SUPERIORE FISSA ====================
+    // NAVBAR SUPERIORE FISSA
     private HorizontalPanel creaNavbar(Utente utenteLoggato) {
         HorizontalPanel navbar = new HorizontalPanel();
-        navbar.setWidth("100%");
+        
+        navbar.setWidth("89%"); 
+        
         navbar.setSpacing(10);
         navbar.setVerticalAlignment(HasVerticalAlignment.ALIGN_MIDDLE);        
         navbar.getElement().getStyle().setProperty("backgroundColor", "#1b263b");
         navbar.getElement().getStyle().setProperty("padding", "10px 20px");
-        navbar.getElement().getStyle().setProperty("boxShadow", "0 2px 4px rgba(0,0,0,0.1)");
+        navbar.getElement().getStyle().setProperty("boxShadow", "0 4px 8px rgba(0,0,0,0.15)");
+        
+        navbar.getElement().getStyle().setProperty("borderRadius", "12px"); 
+        navbar.getElement().getStyle().setProperty("margin", "15px auto 25px auto");
 
         // Logo / Nome a sinistra
         Label lblLogo = new Label("SkillShare");
@@ -59,20 +64,29 @@ public class PubblicaAnnunciGui {
 
         // 1. Pulsante Bacheca / Home loggato
         Button btnBacheca = creaPannelloStileLink("📢 Bacheca");
-        btnBacheca.addClickHandler(event -> new PubblicaAnnunciGui().mostra(utenteLoggato));
+        btnBacheca.setEnabled(false);
 
+        btnBacheca.getElement().getStyle().setProperty("backgroundColor", "#1b263b");
+        btnBacheca.getElement().getStyle().setProperty("color", "#6c757d");
+        btnBacheca.getElement().getStyle().setProperty("boxShadow", "inset 0 4px 6px rgba(0,0,0,0.4)");
+        btnBacheca.getElement().getStyle().setProperty("cursor", "default");
+        //btnBacheca.addClickHandler(event -> new PubblicaAnnunciGui().mostra(utenteLoggato));
+        
         // 2. Pulsante Cerca / Proposte
         Button btnProposte = creaPannelloStileLink("🔍 Cerca / Scambi");
+        btnBacheca.getElement().setId("nav-btn-proposte");
         btnProposte.addClickHandler(event -> new BachecaProposteGUI().mostra(utenteLoggato));
 
         // 3. Profilo utente
         Button btnProfilo = creaPannelloStileLink("👤 Profilo");
+        btnBacheca.getElement().setId("nav-btn-profilo");
         btnProfilo.addClickHandler(event -> {
             com.google.gwt.user.client.Window.alert("Utente loggato: " + utenteLoggato.getNome() + " " + utenteLoggato.getCognome() + " (" + utenteLoggato.getMail() + ")");
         });
 
         // 4. Tasto Logout (Torna alla landing page)
         Button btnLogout = creaPannelloStileLink("↩️ Logout");
+        btnBacheca.getElement().setId("nav-btn-logout");
         btnLogout.addClickHandler(event -> {
             new HomePageGUI().mostra();
         });
@@ -90,8 +104,8 @@ public class PubblicaAnnunciGui {
 
     private Button creaPannelloStileLink(String testo) {
         Button btn = new Button(testo);
-        btn.getElement().getStyle().setProperty("backgroundColor", "#f0f2f5"); // Sfondo chiaro grigio-azzurro
-        btn.getElement().getStyle().setProperty("color", "#1b263b"); // Testo scuro ben leggibile
+        btn.getElement().getStyle().setProperty("backgroundColor", "#f0f2f5");
+        btn.getElement().getStyle().setProperty("color", "#1b263b");
         btn.getElement().getStyle().setProperty("border", "none");
         btn.getElement().getStyle().setProperty("padding", "6px 12px");
         btn.getElement().getStyle().setProperty("borderRadius", "4px");
@@ -115,8 +129,16 @@ public class PubblicaAnnunciGui {
         panel.setSpacing(10);
         panel.setWidth("90%");
         panel.getElement().getStyle().setProperty("margin", "20px auto");
+        panel.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_CENTER);
 
-        panel.add(new HTML("<h1 style=\"background-color:rgb(0,100,100);color:rgb(255,255,255);\"> <em>Bacheca Annunci</em></h1> <p>Condividi le tue competenze o cerca aiuto nella community!</p>"));
+        HTML bannerDashboard = new HTML(
+        "<div style=\"background-color: #1b263b; color: #ffffff; padding: 25px; border-radius: 12px; text-align: center; box-shadow: 0 4px 8px rgba(0,0,0,0.1); font-family: 'Segoe UI', Tahoma, sans-serif; margin-bottom: 25px;\">" +
+        "<h1 style=\"margin: 0 0 8px 0; color: #ffffff; font-size: 28px;\">Bacheca Annunci</h1>" +
+        "<p style=\"margin: 0; font-size: 16px; color: #e0f2f1;\">Condividi le tue competenze o cerca aiuto nella community!</p>" +
+        "</div>"
+        );
+        
+        panel.add(bannerDashboard);
 
         //Campo titolo
         TextBox txtTitolo = new TextBox();
@@ -181,6 +203,7 @@ public class PubblicaAnnunciGui {
         //Pannello per la lista degli annunci esistenti
         VerticalPanel panelListaAnnunci = new VerticalPanel();
         panelListaAnnunci.setSpacing(5);
+        panelListaAnnunci.setWidth("100%");
         panelListaAnnunci.add(new Label("Caricamento annunci in corso..."));
         
         caricaAnnunci(panelListaAnnunci);
@@ -287,10 +310,14 @@ public class PubblicaAnnunciGui {
                     return;
                 }
                 for (Annuncio a : annunci) {
-                    String dettaglio = "<b>" + a.getTitolo() + "</b> (Autore: " + a.getAutoreUsername() + ")<br/>" +
-                                       "Offre: " + a.getCompetenzaOfferta() + " | Richiede: " + a.getCompetenzaRichiesta() + "<br/>" +
-                                       "<em>" + a.getDescrizione() + "</em><hr/>";
-                    container.add(new HTML(dettaglio));
+                    HTML cardAnnuncio = new HTML(
+                        "<div style=\"background: #f8f9fa; border-left: 4px solid #1b263b; padding: 12px 15px; margin-bottom: 12px; border-radius: 4px; box-shadow: 0 1px 3px rgba(0,0,0,0.05); width: 100%; box-sizing: border-box;\">" +
+                        "<b style=\"font-size: 16px; color: #1b263b;\">" + a.getTitolo() + "</b> <span style=\"color: #666; font-size: 13px;\">(Autore: " + a.getAutoreUsername() + ")</span><br/>" +
+                        "<span style=\"color: #333;\"><b>Offre:</b> " + a.getCompetenzaOfferta() + " | <b>Richiede:</b> " + a.getCompetenzaRichiesta() + "</span><br/>" +
+                        "<p style=\"margin: 5px 0 0 0; color: #555; font-size: 14px;\"><em>" + a.getDescrizione() + "</em></p>" +
+                        "</div>"
+                    );
+                    container.add(cardAnnuncio);
                 }
             }
         });

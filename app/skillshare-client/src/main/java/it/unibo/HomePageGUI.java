@@ -49,7 +49,7 @@ public class HomePageGUI {
         RootPanel.get().add(mainPanel);
     }
 
-    // ==================== SCHERMATA INIZIALE (LANDING PAGE) ====================
+    // SCHERMATA INIZIALE (LANDING PAGE)
     private void mostraLandingPage() {
         mainPanel.clear();
 
@@ -73,6 +73,7 @@ public class HomePageGUI {
         panelAccedi.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_CENTER);
 
         Button btnVaiLogin = new Button("Accedi");
+        btnVaiLogin.getElement().setId("btn-vai-login");
         estilsaPulsantePrincipale(btnVaiLogin, "#1b263b");
         btnVaiLogin.addClickHandler(event -> mostraFormLogin());
 
@@ -86,6 +87,7 @@ public class HomePageGUI {
         panelRegistra.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_CENTER);
         
         Button btnVaiRegistra = new Button("Registrati");
+        btnVaiRegistra.getElement().setId("btn-vai-registra");
         estilsaPulsantePrincipale(btnVaiRegistra, "#1b263b");
         btnVaiRegistra.addClickHandler(event -> mostraFormRegistrazione());
 
@@ -160,8 +162,13 @@ public class HomePageGUI {
         }
 
         // Se ci sono più annunci di quelli mostrati, aggiungi il pulsante "Vedi tutti"
+        HorizontalPanel panelBtnWrapper = new HorizontalPanel();
+        panelBtnWrapper.setWidth("100%");
+        panelBtnWrapper.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_CENTER);
+
         if (annunci.size() > limiteIniziale) {
             Button btnVediTutti = new Button("↓ Vedi tutti gli annunci (" + annunci.size() + ")");
+            btnVediTutti.getElement().setId("btn-vedi-tutti");
             btnVediTutti.getElement().getStyle().setProperty("backgroundColor", "transparent");
             btnVediTutti.getElement().getStyle().setProperty("color", "#1b263b");
             btnVediTutti.getElement().getStyle().setProperty("border", "2px solid #1b263b");
@@ -173,10 +180,25 @@ public class HomePageGUI {
 
             btnVediTutti.addClickHandler(event -> popolaListaAnnunciInPagina(container, annunci, annunci.size()));
             
-            HorizontalPanel panelBtnWrapper = new HorizontalPanel();
-            panelBtnWrapper.setWidth("100%");
-            panelBtnWrapper.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_CENTER);
+            
             panelBtnWrapper.add(btnVediTutti);
+            
+            container.add(panelBtnWrapper);
+        } else if (annunci.size() > 3 && limiteIniziale >= annunci.size()){
+            Button btnRiduci = new Button("↑ Riduci lista");
+            btnRiduci.getElement().setId("btn-riduci");
+            btnRiduci.getElement().getStyle().setProperty("backgroundColor", "transparent");
+            btnRiduci.getElement().getStyle().setProperty("color", "#1b263b");
+            btnRiduci.getElement().getStyle().setProperty("border", "2px solid #1b263b");
+            btnRiduci.getElement().getStyle().setProperty("padding", "8px 20px");
+            btnRiduci.getElement().getStyle().setProperty("borderRadius", "4px");
+            btnRiduci.getElement().getStyle().setProperty("cursor", "pointer");
+            btnRiduci.getElement().getStyle().setProperty("fontWeight", "bold");
+            btnRiduci.getElement().getStyle().setProperty("margin", "10px auto");
+
+            btnRiduci.addClickHandler(event -> popolaListaAnnunciInPagina(container, annunci, 3));
+            
+            panelBtnWrapper.add(btnRiduci);
             
             container.add(panelBtnWrapper);
         }
