@@ -44,4 +44,39 @@ public class BachecaPropostePage {
         }
     }
 
+    public BachecaPropostePage cliccaRichiediScambio() {
+        // Attesa che la tabella sia visibile prima di cercare i pulsanti
+        wait.until(ExpectedConditions.visibilityOf(tabellaProposte));
+
+        // Richiesta di tutti i pulsanti presenti nella tabella
+        java.util.List<WebElement> bottoni = tabellaProposte.findElements(org.openqa.selenium.By.tagName("button"));
+
+        // Scorrimento della Lista
+        for (WebElement bottone : bottoni) {
+
+            // Se c'è il bottone "Richiedi Scambio" e non è disabilitato, clicchiamo su di esso
+            if (bottone.getText().equals("Richiedi Scambio") && bottone.isEnabled()) {
+                bottone.click();
+                break;
+            }
+        }
+
+        return this;
+    }
+
+    public String getTestoAlertEAccetta() {
+        // Attesa che l'alert sia presente
+        wait.until(ExpectedConditions.alertIsPresent());
+
+        // Passaggio al contesto dell'alert
+        org.openqa.selenium.Alert alert = driver.switchTo().alert();
+
+        // Salvataggio del testo dell'alert
+        String testoAlert = alert.getText();
+
+        // Accettazione dell'alert
+        alert.accept();
+
+        return testoAlert;
+    }
 }
