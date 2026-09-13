@@ -10,22 +10,130 @@ public class BachecaProposteGUI {
     private final GestoreAnnunciAsync rpcService = GWT.create(GestoreAnnunci.class);
     private final GestoreRichiesteServiceAsync richiesteService = GWT.create(GestoreRichiesteService.class);
 
+    // NAVBAR SUPERIORE FISSA
+    private HorizontalPanel creaNavbar(Utente utenteLoggato) {
+        HorizontalPanel navbar = new HorizontalPanel();
+        
+        navbar.setWidth("89%"); 
+        
+        navbar.setSpacing(10);
+        navbar.setVerticalAlignment(HasVerticalAlignment.ALIGN_MIDDLE);        
+        navbar.getElement().getStyle().setProperty("backgroundColor", "#1b263b");
+        navbar.getElement().getStyle().setProperty("padding", "10px 20px");
+        navbar.getElement().getStyle().setProperty("boxShadow", "0 4px 8px rgba(0,0,0,0.15)");
+        
+        navbar.getElement().getStyle().setProperty("borderRadius", "12px"); 
+        navbar.getElement().getStyle().setProperty("margin", "15px auto 25px auto");
+
+        // Logo / Nome a sinistra
+        Label lblLogo = new Label("SkillShare");
+        lblLogo.getElement().getStyle().setProperty("color", "#ffffff");
+        lblLogo.getElement().getStyle().setProperty("fontSize", "20px");
+        lblLogo.getElement().getStyle().setProperty("fontWeight", "bold");
+        lblLogo.getElement().getStyle().setProperty("cursor", "pointer");
+        lblLogo.addClickHandler(event -> new PubblicaAnnunciGui().mostra(utenteLoggato));
+        
+        navbar.add(lblLogo);
+        navbar.setCellWidth(lblLogo, "30%");
+
+        // Pannello pulsanti a destra
+        HorizontalPanel menuPanel = new HorizontalPanel();
+        menuPanel.setSpacing(15);
+        menuPanel.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_RIGHT);
+        menuPanel.setVerticalAlignment(HasVerticalAlignment.ALIGN_MIDDLE);
+
+        // 1. Pulsante Bacheca / Home loggato
+        Button btnBacheca = creaPannelloStileLink("📢 Bacheca");
+        btnBacheca.getElement().setId("nav-btn-bacheca");
+        btnBacheca.addClickHandler(event -> new PubblicaAnnunciGui().mostra(utenteLoggato));
+        
+        // 2. Pulsante Cerca / Proposte
+        Button btnProposte = creaPannelloStileLink("🔍 Cerca / Scambi");
+        btnProposte.setEnabled(false);
+        btnProposte.getElement().getStyle().setProperty("backgroundColor", "#1b263b");
+        btnProposte.getElement().getStyle().setProperty("color", "#6c757d");
+        btnProposte.getElement().getStyle().setProperty("boxShadow", "inset 0 4px 6px rgba(0,0,0,0.4)");
+        btnProposte.getElement().getStyle().setProperty("cursor", "default");
+        //btnProposte.addClickHandler(event -> new BachecaProposteGUI().mostra(utenteLoggato));
+
+        // 3. Profilo utente
+        Button btnProfilo = creaPannelloStileLink("👤 Profilo");
+        btnBacheca.getElement().setId("nav-btn-profilo");
+        btnProfilo.addClickHandler(event -> {
+            com.google.gwt.user.client.Window.alert("Utente loggato: " + utenteLoggato.getNome() + " " + utenteLoggato.getCognome() + " (" + utenteLoggato.getMail() + ")");
+        });
+
+        // 4. Tasto Logout (Torna alla landing page)
+        Button btnLogout = creaPannelloStileLink("↩️ Logout");
+        btnBacheca.getElement().setId("nav-btn-logout");
+        btnLogout.addClickHandler(event -> {
+            new HomePageGUI().mostra();
+        });
+
+        menuPanel.add(btnBacheca);
+        menuPanel.add(btnProposte);
+        menuPanel.add(btnProfilo);
+        menuPanel.add(btnLogout);
+
+        navbar.add(menuPanel);
+        navbar.setCellHorizontalAlignment(menuPanel, HasHorizontalAlignment.ALIGN_RIGHT);
+
+        return navbar;
+    }
+
+    private Button creaPannelloStileLink(String testo) {
+        Button btn = new Button(testo);
+        btn.getElement().getStyle().setProperty("backgroundColor", "#f0f2f5");
+        btn.getElement().getStyle().setProperty("color", "#1b263b");
+        btn.getElement().getStyle().setProperty("border", "none");
+        btn.getElement().getStyle().setProperty("padding", "6px 12px");
+        btn.getElement().getStyle().setProperty("borderRadius", "4px");
+        btn.getElement().getStyle().setProperty("fontSize", "13px");
+        btn.getElement().getStyle().setProperty("fontWeight", "bold");
+        btn.getElement().getStyle().setProperty("cursor", "pointer");
+        return btn;
+    }
+    
     public void mostra(Utente utenteLoggato) {
+        VerticalPanel mainContainer = new VerticalPanel();
+        mainContainer.setWidth("100%");
+        mainContainer.setSpacing(0);
+        
+        // Aggiungiamo la Navbar in cima se l'utente è loggato
+        if (utenteLoggato != null) {
+            mainContainer.add(creaNavbar(utenteLoggato));
+        }
+
         VerticalPanel pannelloPrincipale = new VerticalPanel();
         pannelloPrincipale.setSpacing(15);
+        pannelloPrincipale.setWidth("90%");
+        pannelloPrincipale.getElement().getStyle().setProperty("margin", "20px auto");
+        pannelloPrincipale.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_CENTER);
+        
 
-        pannelloPrincipale.add(new HTML("<h2 style='color: #006464; border-bottom: 2px solid #006464; padding-bottom: 5px; font-family: sans-serif;'>Lista Proposte Disponibili</h2>"));
+        HTML bannerDashboard = new HTML(
+        "<div style=\"background-color: #1b263b; color: #ffffff; padding: 25px; border-radius: 12px; text-align: center; box-shadow: 0 4px 8px rgba(0,0,0,0.1); font-family: 'Segoe UI', Tahoma, sans-serif; margin-bottom: 25px;\">" +
+        "<h1 style=\"margin: 0 0 8px 0; color: #ffffff; font-size: 28px;\">Lista Proposte Disponibili</h1>" +
+        "<p style=\"margin: 0; font-size: 16px; color: #e0f2f1;\">Visualizza tutte le proposte disponibili</p>" +
+        "</div>"
+        );
+        
+        pannelloPrincipale.add(bannerDashboard);
 
-        Label lblStato = new Label("Carimento delle proposte in corso...");
+        Label lblStato = new Label("Caricamento delle proposte in corso...");
         pannelloPrincipale.add(lblStato);
 
         VerticalPanel pannelloAnnunci = new VerticalPanel();
-        pannelloPrincipale.add(pannelloAnnunci);
+        pannelloAnnunci.setWidth("100%");
 
         Button btnFiltri = new Button("🔍 Filtri Avanzati");
+        btnFiltri.getElement().setId("btn-filtri-avanzati");
         btnFiltri.getElement().getStyle().setProperty("marginBottom", "10px");
         btnFiltri.addClickHandler(event -> mostraPopupFiltriAvanzati(pannelloAnnunci, utenteLoggato, lblStato));
+        
         pannelloPrincipale.add(btnFiltri);
+
+        pannelloPrincipale.add(pannelloAnnunci);
 
         rpcService.ottieniTuttiGliAnnunci(new AsyncCallback<List<Annuncio>>() {
             
@@ -42,34 +150,27 @@ public class BachecaProposteGUI {
             }
         });
 
-        Button btnIndietro = new Button("Indietro");
-        btnIndietro.getElement().getStyle().setProperty("marginTop", "20px");
-        btnIndietro.addClickHandler(event -> {
-            // Logica per tornare alla pagina precedente o alla home page
-            new PubblicaAnnunciGui().mostra(utenteLoggato); // Passa l'utente loggato
-        });
-        pannelloPrincipale.add(btnIndietro);
+        mainContainer.add(pannelloPrincipale);
 
         RootPanel.get().clear();
-        RootPanel.get().add(pannelloPrincipale);
+        RootPanel.get().add(mainContainer);
     }
 
-    // Pannello popup con i campi di ricerca avanzata.
     private void mostraPopupFiltriAvanzati(VerticalPanel pannelloAnnunci, Utente utenteLoggato, Label lblStato) {
         final PopupPanel pannelloFiltri = new PopupPanel(true);
-        pannelloFiltri.setGlassEnabled(true); // Velo scuro per coprire il resto del sito
+        pannelloFiltri.setGlassEnabled(true); 
 
         pannelloFiltri.getElement().getStyle().setBackgroundColor("#ffffff");
         pannelloFiltri.getElement().getStyle().setZIndex(9999);
-        pannelloFiltri.getElement().getStyle().setProperty("border", "3px solid #006464");
+        pannelloFiltri.getElement().getStyle().setProperty("border", "3px solid #1b263b");
         pannelloFiltri.getElement().getStyle().setProperty("padding", "15px");
         pannelloFiltri.getElement().getStyle().setProperty("borderRadius", "8px");
 
         VerticalPanel layoutFiltri = new VerticalPanel();
         layoutFiltri.setSpacing(10);
-        layoutFiltri.getElement().getStyle().setBackgroundColor("#ffffff"); // Sicurezza extra
+        layoutFiltri.getElement().getStyle().setBackgroundColor("#ffffff");
         
-        layoutFiltri.add(new HTML("<h3 style='margin-top: 0; color: #006464;'>🔍 Ricerca Avanzata</h3>"));
+        layoutFiltri.add(new HTML("<h3 style='margin-top: 0; color: #1b263b;'>🔍 Ricerca Avanzata</h3>"));
         
         final TextBox txtOfferta = new TextBox();
         txtOfferta.getElement().setPropertyString("placeholder", "Competenza offerta");
@@ -97,7 +198,9 @@ public class BachecaProposteGUI {
         panelBottoni.setSpacing(5);
         
         Button btnEseguiRicerca = new Button("Cerca");
+        btnEseguiRicerca.getElement().setId("btn-esegui-ricerca");
         Button btnAnnulla = new Button("Annulla");
+        btnAnnulla.getElement().setId("btn-annulla");
         
         panelBottoni.add(btnEseguiRicerca);
         panelBottoni.add(btnAnnulla);
@@ -113,7 +216,6 @@ public class BachecaProposteGUI {
             
             lblStato.setText("Ricerca in corso...");
             
-            // Chiama il metodo RPC di ricerca avanzata
             rpcService.cercaAnnunci(offerta, richiesta, keyword, ordinamento, new AsyncCallback<List<Annuncio>>() {
                 @Override
                 public void onFailure(Throwable caught) {
@@ -124,7 +226,6 @@ public class BachecaProposteGUI {
                 public void onSuccess(List<Annuncio> risultati) {
                     pannelloFiltri.hide();
                     lblStato.setText("");
-                    // Ridegna la tabella con i risultati filtrati
                     popolaTabella(risultati, pannelloAnnunci, utenteLoggato);
                 }
             });
@@ -139,7 +240,6 @@ public class BachecaProposteGUI {
     private void popolaTabella(List<Annuncio> listaProposte, VerticalPanel pannelloAnnunci, Utente utenteLoggato) {
         pannelloAnnunci.clear();
             
-        // Caso A: Database vuoto, nessun annuncio presente
         if (listaProposte == null || listaProposte.isEmpty()){
             Label lblVuoto = new Label("Non ci sono proposte disponibili al momento.");
             lblVuoto.getElement().setId("msg-nessuna-proposta");
@@ -147,16 +247,17 @@ public class BachecaProposteGUI {
             return;
         }
 
-        // Caso B: Database popolato, mostriamo gli annunci
         FlexTable tabellaAnnunci = new FlexTable();
         tabellaAnnunci.getElement().setId("tabella-proposte");
-        tabellaAnnunci.setWidth("900px");
+        tabellaAnnunci.setWidth("100%");
         tabellaAnnunci.setCellPadding(10);
-        tabellaAnnunci.setCellSpacing(0); // Rimuove lo spazio tra le celle
+        tabellaAnnunci.setCellSpacing(0);
         tabellaAnnunci.getElement().getStyle().setProperty("borderCollapse", "collapse");
         tabellaAnnunci.getElement().getStyle().setProperty("fontFamily", "sans-serif");
 
-        // Intestazioni della tabella
+        tabellaAnnunci.getElement().getStyle().setProperty("borderRadius", "12px");
+        tabellaAnnunci.getElement().getStyle().setProperty("overflow", "hidden");
+
         tabellaAnnunci.setHTML(0, 0, "<b>Titolo</b>");
         tabellaAnnunci.setHTML(0, 1, "<b>Autore</b>");
         tabellaAnnunci.setHTML(0, 2, "<b>Descrizione</b>");
@@ -164,8 +265,7 @@ public class BachecaProposteGUI {
         tabellaAnnunci.setHTML(0, 4, "<b>Competenza Richiesta</b>");
         tabellaAnnunci.setHTML(0,5, "<b>Azione</b>");
 
-        // Stile per l'intestazione della tabella
-        tabellaAnnunci.getRowFormatter().getElement(0).getStyle().setProperty("backgroundColor","#006464");
+        tabellaAnnunci.getRowFormatter().getElement(0).getStyle().setProperty("backgroundColor","#1b263b");
         tabellaAnnunci.getRowFormatter().getElement(0).getStyle().setProperty("color","white");
         tabellaAnnunci.getRowFormatter().getElement(0).getStyle().setProperty("textAlign","center");
         tabellaAnnunci.getRowFormatter().getElement(0).getStyle().setProperty("textTransform","uppercase");
@@ -179,15 +279,14 @@ public class BachecaProposteGUI {
             tabellaAnnunci.setText(riga, 4, annuncio.getCompetenzaRichiesta());
 
             Button btnRichiediScambio = new Button("Richiedi Scambio");
+            btnRichiediScambio.getElement().setId("btn-richiedi-scambio-" + annuncio.getId());
 
-            // Disabilita il pulsante se l'utente loggato è l'autore dell'annuncio
             if (annuncio.getAutoreUsername().equals(utenteLoggato.getUsername())) {
                 btnRichiediScambio.setEnabled(false);
                 btnRichiediScambio.setTitle("Non puoi richiedere uno scambio con il tuo annuncio.");
             }
 
             btnRichiediScambio.addClickHandler(event ->{
-                // Creazione della richiesta di scambio
                 RichiestaScambio richiesta = new RichiestaScambio("",annuncio.getId(), utenteLoggato.getUsername(), annuncio.getAutoreUsername());
 
                 richiesteService.inviaRichiesta(richiesta, new AsyncCallback<Boolean>() {
@@ -207,13 +306,8 @@ public class BachecaProposteGUI {
                 });
             });
 
-            // Aggiunta del pulsante alla tabella
             tabellaAnnunci.setWidget(riga, 5, btnRichiediScambio);
-
-            // Stile per le celle della tabella
             tabellaAnnunci.getRowFormatter().getElement(riga).getStyle().setProperty("textAlign","center");
-
-            // Separazione tra le righe e alternanza dei colori
             tabellaAnnunci.getRowFormatter().getElement(riga).getStyle().setProperty("borderBottom", "1px solid #dddddd");
 
             if (riga % 2 == 0){
@@ -221,7 +315,7 @@ public class BachecaProposteGUI {
             }
 
             riga++;
-            }
-            pannelloAnnunci.add(tabellaAnnunci);
         }
+        pannelloAnnunci.add(tabellaAnnunci);
+    }
 }
